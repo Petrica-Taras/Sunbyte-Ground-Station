@@ -10,6 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
+@SuppressWarnings("serial")
 public class PlotPolar extends JPanel{
 	private JLabel title;
 	

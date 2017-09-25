@@ -11,9 +11,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
+import uk.co.sunbyte.controller.ControllerMainPerspective;
+
 public class Menubar extends JMenuBar {
 	
-    public Menubar(Window win) {
+    public Menubar(ControllerMainPerspective controllerMainPerspective) {
     	//Build the Sessions menu.
     	JMenu sessions = new JMenu("Sessions");
     	sessions.setMnemonic(KeyEvent.VK_A);
@@ -82,7 +84,7 @@ public class Menubar extends JMenuBar {
 
     	this.add(help);
     	
-    	win.setJMenuBar(this);
+    	controllerMainPerspective.setJMenuBar(this);
 
     }
     

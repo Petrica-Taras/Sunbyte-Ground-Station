@@ -2,10 +2,9 @@ package uk.co.sunbyte;
 
 import java.io.IOException;
 
-import uk.co.sunbyte.controller.Controller;
+import uk.co.sunbyte.controller.ControllerMainPerspective;
 import uk.co.sunbyte.model.*;
 import uk.co.sunbyte.view.PlotCartesian;
-import uk.co.sunbyte.view.Window;
 
 public class SunbyteApp {
 	public static void main(String[] args) {
@@ -40,7 +39,7 @@ public class SunbyteApp {
 		
 		// System.out.println(s.toString());
 		
-		Controller c = new Controller(); 
+		ControllerMainPerspective c = new ControllerMainPerspective(); 
 
 	}
 

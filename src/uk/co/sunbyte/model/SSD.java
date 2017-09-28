@@ -37,9 +37,9 @@ public class SSD implements IO {
 	}
 	
 	@Override
-	public void pullData() throws IOException {
+	public String pullData() throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(this.filename));
-        String sCurrentLine;
+        String sCurrentLine = "";
         try {
 			while ((sCurrentLine = bufferedReader.readLine()) != null) {
 			    this.content.append(sCurrentLine+"\n");
@@ -48,6 +48,7 @@ public class SSD implements IO {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        return sCurrentLine;
 	}
 
 	public void pullData(String filename) throws IOException {

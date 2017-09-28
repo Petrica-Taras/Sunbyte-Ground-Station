@@ -25,6 +25,7 @@ import uk.co.sunbyte.view.Menubar;
 import uk.co.sunbyte.view.PlotCartesian;
 import uk.co.sunbyte.view.PlotPolar;
 import uk.co.sunbyte.view.StatusBar;
+import uk.co.sunbyte.view.TextPanel;
 
 
 public class ControllerMainPerspective extends JFrame {
@@ -39,19 +40,27 @@ public class ControllerMainPerspective extends JFrame {
     private GridBagLayout layout;
     private GridBagConstraints constraints; 
     public StatusBar statusbar;	
+    
+    public TextPanel textPanel; 
     // default will start in full screen
+    
+    EthernetConnection ethConn;
     
     public Map<String, String> settings; // centralises all of the settings
             
     
-    public ControllerMainPerspective() {
+    public ControllerMainPerspective() throws IOException {
     	// start the dancing
     	this.settings = new HashMap<String, String>();
 		this.settings.put("localhost IP", "169.254.131.160");
 		this.settings.put("Leonardo IP", "169.254.131.159");
 		this.settings.put("EtherMega IP", "169.254.131.158");
 		
+		ethConn = new EthernetConnection("169.254.131.159", 9999);
+
         initUI();
+        // System.out.println(ethConn.pullData()); 
+        textPanel.appendText(ethConn.pullData());
     	
     	// fast stuff okay!
 //    	bringTogether = new JPanel();
@@ -168,15 +177,32 @@ public class ControllerMainPerspective extends JFrame {
 	    plotCart.setBorder(bd1);
 	    plotPolar.setBorder(bd1);
 	    
+	    // third/text cell
+	    constraints.gridx = 0; 
+		constraints.gridy = 2; 
+		constraints.weightx = 1; // these shall be computed!
+		constraints.weighty = 1;
+		constraints.fill = GridBagConstraints.BOTH;
+		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+		constraints.gridwidth = 2;
+
+		
+        textPanel = new TextPanel(new Dimension(1900, 500)); 
+        Border bd2 = BorderFactory.createLineBorder(new Color(255, 0, 0));  
+		this.add(textPanel, constraints);
+		textPanel.setBorder(bd2); 
+	    
 	    // bottom cell, statusbar location
 		constraints.gridx = 0; 
-		constraints.gridy = 1; 
+		constraints.gridy = 2; 
 		constraints.weightx = 1; // these shall be computed!
 		constraints.weighty = 0.1;		
 		constraints.gridwidth = 2; // or as many cols available
 		
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.anchor = GridBagConstraints.LAST_LINE_START;
+		
+		
 		
 		this.add(statusbar, constraints);
           	

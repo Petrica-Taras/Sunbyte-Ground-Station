@@ -1,8 +1,10 @@
 package uk.co.sunbyte.model;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -27,9 +29,13 @@ public class EthernetConnection implements IO {
     Socket clientSocket;
     ServerSocket serverSocket;
     
+    /**
+     * 
+     * @param clientAddress - a string "169.254.170.169"
+     */
 	public EthernetConnection(String clientAddress) {
 		this.ipAddress = clientAddress;
-		this.portNumber = 23;     // defaults to telnet, but do we need it?
+		this.portNumber = 9999;     // defaults to telnet, but do we need it?
 		this.local = "hostname";
 		
 		
@@ -58,33 +64,32 @@ public class EthernetConnection implements IO {
 	
 	@SuppressWarnings("deprecation")
 	@Override
-	public void pullData() throws IOException {
+	public String pullData() throws IOException {
+		String line = new String(); 
 		try {
-	        this.serverSocket = new ServerSocket(9990); // need to make this an input
+	        this.serverSocket = new ServerSocket(9999); // need to make this an input
 	        /*assumes arduino and stuff is already sending towards the ground station
 	         * need to make a new object for each device - a manager (factory) is 
 	         * necessary!*/
+	        
+	        clientSocket = serverSocket.accept();
+	           BufferedReader is = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+	    // As long as we receive data, echo that data back to the client.
+	           //while (true) {
+	             line = is.readLine();
+	             // System.out.println(line); 
+	           //}
 	    }
 	    catch (IOException e) {
 	        System.out.println(e);
 	    }   
-		
-		try {
-	           clientSocket = serverSocket.accept();
-	           DataInputStream is = new DataInputStream(clientSocket.getInputStream());
-	    // As long as we receive data, echo that data back to the client.
-	           //while (true) {
-	             String line = is.readLine();
-	             System.out.println(line); 
-	           //}
-	             
-	        }   
-	    catch (IOException e) {
-	           System.out.println(e);
-	        }
 		finally {
-			clientSocket.close();
+//			clientSocket.close();
+//			serverSocket.close(); 
 		}
+		// line = "very much testing";//return line;
+		System.out.println(line);
+		return line;//return line;
 	    }
 
 	@Override

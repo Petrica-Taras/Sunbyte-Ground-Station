@@ -26,7 +26,7 @@ public interface IO {
     
 	/* relying on exception handling to deal 
 	 * with bad stuff! */
-    public void pullData() throws IOException;
+    public String pullData() throws IOException;
     public void pushData() throws IOException;
     
     /* Ok, not the most brilliant name scheme ever

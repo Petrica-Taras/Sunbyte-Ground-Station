@@ -51,10 +51,10 @@ public class PlotPolarDrawableArea extends JPanel{
         	g2d.drawLine(this.width/2, this.height/2, 
         			     (int) ((this.width-5-2*h)*Math.cos(10*i*Math.PI/180.0)/2.0), 
         			     (int) ((this.width-5-2*h)*Math.sin(10*i*Math.PI/180.0)/2.0));
-        	System.out.println("-----------");
-        	System.out.println(i);
-        	System.out.println((int) ((this.width-5-2*h)*Math.cos(10*i*Math.PI/180.0)/2.0));
-        	System.out.println((int) ((this.width-5-2*h)*Math.sin(10*i*Math.PI/180.0)/2.0));
+//        	System.out.println("-----------");
+//        	System.out.println(i);
+//        	System.out.println((int) ((this.width-5-2*h)*Math.cos(10*i*Math.PI/180.0)/2.0));
+//        	System.out.println((int) ((this.width-5-2*h)*Math.sin(10*i*Math.PI/180.0)/2.0));
         }
         
         g2d.dispose();

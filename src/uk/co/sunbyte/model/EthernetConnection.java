@@ -67,21 +67,23 @@ public class EthernetConnection implements IO {
 	@SuppressWarnings("deprecation")
 	@Override
 	public String pullData() throws IOException {
-		String line = new String(); 
+		String data = new String();		
 		try {
+ 
 	        this.serverSocket = new ServerSocket(9999); // need to make this an input
 	        /*assumes arduino and stuff is already sending towards the ground station
 	         * need to make a new object for each device - a manager (factory) is 
 	         * necessary!*/
 	        
 	        clientSocket = serverSocket.accept();
-//	           BufferedReader is = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            BufferedReader is = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 //	    // As long as we receive data, echo that data back to the client.
 //	           //while (true) {
 //	             line = is.readLine();
-	             // System.out.println(line); 
+            data = this.readFromClient(is);
+	        System.out.println(data); 
 	           //}
-	        line = readInputStream(clientSocket.getInputStream());
+	        
 	    }
 	    catch (IOException e) {
 	        System.out.println(e);
@@ -90,9 +92,8 @@ public class EthernetConnection implements IO {
 //			clientSocket.close();
 //			serverSocket.close(); 
 		}
-		// line = "very much testing";//return line;
-		System.out.println(line);
-		return line;//return line;
+		
+		return data;
 	    }
 
 	@Override
@@ -128,20 +129,16 @@ public class EthernetConnection implements IO {
 		
 	}	
 	
-	String readInputStream(InputStream inputStream) throws IOException {
-		  final int bufferSize = 1024;
-		  final char[] buffer = new char[bufferSize];
-		  final StringBuilder out = new StringBuilder();
-		  Reader in = new InputStreamReader(inputStream, "UTF-8");
-		  //for (; ; ) {
-
-		  while (in.ready()) {
-		      int rsz = in.read(buffer, 0, buffer.length);
-		      if (rsz < 0)
-		          break;
-		      out.append(buffer, 0, rsz);
+	 private static String readFromClient(BufferedReader inFromClient) throws IOException {
+		  int c = 0;
+		  StringBuilder sb = new StringBuilder();
+		  while ((c = inFromClient.read()) >= 0) {
+		   sb.append((char)c);
+		   if (!inFromClient.ready()) {
+		    break; //end of current message
+		   }
 		  }
-		  return out.toString();
+		  return sb.toString();
 		 }
 	
 }

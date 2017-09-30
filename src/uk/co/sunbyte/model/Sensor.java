@@ -212,6 +212,75 @@ public class Sensor {
     	return this.dataNames.size(); 
     }
     
+    /**
+     * Very important as it allows separating data from the Sensor
+     * into another one. Useful to separate compass data for
+     * polarPlot
+     * 
+     * @param index an array with strings to be added into the new sensor
+     * @return the newly created object
+     */
+    public Sensor getSlice(String[] index) {
+    	String[] newDataNames = new String[index.length];
+    	StringBuffer newDataEntries = new StringBuffer(); 
+    	
+    	double[][] auxData = new double[this.getFieldsSize()][index.length];
+    	
+    	int counter = 0;   	
+    	for(int i = 0; i < this.dataNames.size(); i++) {
+    		for(int j = 0; j < index.length; j++) {
+    			if(this.dataNames.get(i).equals(index[j])) {
+    				newDataNames[j] = index[j];
+    				// build auxData now
+    				for(int k = 0; k < this.getFieldsSize(); k++) {
+    					auxData[k][counter] = this.floatData.get(k)[j];
+    				}
+    				counter++;  
+    			}
+    		}
+    	}
+    	
+    	for(int i = 0; i < this.getFieldsSize(); i++) {
+    		for(int j = 0; j < index.length; j++) {
+    			newDataEntries.append(auxData[i][j] + " ");
+    		}
+    		newDataEntries.append("\n");
+    	}
+    	
+    	
+    	return new Sensor(this.sensorName, newDataNames, newDataEntries.toString());
+    }
+    
+    public Sensor getSlice(String[] index, String newSensorName) {
+    	String[] newDataNames = new String[index.length];
+    	StringBuffer newDataEntries = new StringBuffer(); 
+    	
+    	double[][] auxData = new double[this.getFieldsSize()][index.length];
+    	
+    	int counter = 0;   	
+    	for(int i = 0; i < this.dataNames.size(); i++) {
+    		for(int j = 0; j < index.length; j++) {
+    			if(this.dataNames.get(i).equals(index[j])) {
+    				newDataNames[j] = index[j];
+    				// build auxData now
+    				for(int k = 0; k < this.getFieldsSize(); k++) {
+    					auxData[k][counter] = this.floatData.get(k)[j];
+    				}
+    				counter++;  
+    			}
+    		}
+    	}
+    	
+    	for(int i = 0; i < this.getFieldsSize(); i++) {
+    		for(int j = 0; j < index.length; j++) {
+    			newDataEntries.append(auxData[i][j] + " ");
+    		}
+    		newDataEntries.append("\n");
+    	}
+    	
+    	return new Sensor(newSensorName, newDataNames, newDataEntries.toString());
+    }
+    
     public void writeToLog(Session session) {
     	session.write(this.toString()); 
     }

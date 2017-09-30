@@ -42,6 +42,9 @@ public class ControllerMainPerspective extends JFrame {
     private GridBagConstraints constraints; 
     public StatusBar statusbar;	
     
+    public PlotCartesian plotCart;
+    public PlotPolar plotPolar;
+    
     public TextPanel textPanel; 
     // default will start in full screen
     
@@ -61,9 +64,35 @@ public class ControllerMainPerspective extends JFrame {
 		this.settings.put("EtherMega IP", "169.254.131.158");
 		
 		ethConn = new EthernetConnection("169.254.131.159", 9999);
-
-        initUI();
+		
+//		PlotCartesian plotCart = new PlotCartesian("Time [s]", 
+//        "Temperature [C]",
+//        new Dimension(900, 500),
+//        new Dimension(5, 4),
+//        new double[][]{{80.0, 20.0}, 
+//                       {95.0, 22.0},
+//                       {101.0, 22.1},
+//                       {200.0, 40.0}, 
+//                       {350.0, 75.0}, 
+//                       {500.0, 100.0}, 
+//                       {550.0, 101.5}});		
+		this.plotCart = new PlotCartesian(sensor,
+                new Dimension(900, 500),
+                new Dimension(5, 4));
+		this.plotPolar = new PlotPolar("Orientation", 
+                new Dimension(500, 500),
+                new Dimension(5, 36),
+	            new double[][]{{80.0, 20.0}, 
+                    {95.0, 22.0},
+                    {101.0, 22.1},
+                    {200.0, 40.0}, 
+                    {350.0, 75.0}, 
+                    {500.0, 100.0}});
+		
+        initUI(); // just put everything inside the layout so I can focus on logic here
+        
         String s = new String(ethConn.pullData()); 
+
         
         textPanel.appendText(s);
     	
@@ -148,20 +177,8 @@ public class ControllerMainPerspective extends JFrame {
 		constraints.fill = GridBagConstraints.NONE;
 		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
 		
-//		PlotCartesian plotCart = new PlotCartesian("Time [s]", 
-//				             "Temperature [C]",
-//				             new Dimension(900, 500),
-//				             new Dimension(5, 4),
-//				             new double[][]{{80.0, 20.0}, 
-//                                            {95.0, 22.0},
-//                                            {101.0, 22.1},
-//			                                {200.0, 40.0}, 
-//			                                {350.0, 75.0}, 
-//			                                {500.0, 100.0}, 
-//			                                {550.0, 101.5}});
-		PlotCartesian plotCart = new PlotCartesian(sensor,
-	                                               new Dimension(900, 500),
-	                                               new Dimension(5, 4));
+
+		
 		this.add(plotCart, constraints);
         // second cell		
 		constraints.gridx = 1; 
@@ -172,15 +189,7 @@ public class ControllerMainPerspective extends JFrame {
 		constraints.fill = GridBagConstraints.NONE;
 		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
 		
-		PlotPolar plotPolar = new PlotPolar("Orientation", 
-				                            new Dimension(500, 500),
-				                            new Dimension(5, 36),
-								            new double[][]{{80.0, 20.0}, 
-	                                            {95.0, 22.0},
-	                                            {101.0, 22.1},
-				                                {200.0, 40.0}, 
-				                                {350.0, 75.0}, 
-				                                {500.0, 100.0}} 		                            );
+				                           
 		this.add(plotPolar, constraints);
 		Border bd1 = BorderFactory.createLineBorder(new Color(255, 0, 0));    
 	    plotCart.setBorder(bd1);
@@ -203,7 +212,7 @@ public class ControllerMainPerspective extends JFrame {
 	    
 	    // bottom cell, statusbar location
 		constraints.gridx = 0; 
-		constraints.gridy = 2; 
+		constraints.gridy = 3; 
 		constraints.weightx = 1; // these shall be computed!
 		constraints.weighty = 0.1;		
 		constraints.gridwidth = 2; // or as many cols available

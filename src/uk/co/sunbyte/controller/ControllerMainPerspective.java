@@ -21,6 +21,7 @@ import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
 import uk.co.sunbyte.model.EthernetConnection;
+import uk.co.sunbyte.model.Sensor;
 import uk.co.sunbyte.view.Menubar;
 import uk.co.sunbyte.view.PlotCartesian;
 import uk.co.sunbyte.view.PlotPolar;
@@ -50,6 +51,19 @@ public class ControllerMainPerspective extends JFrame {
             
     
     public ControllerMainPerspective() throws IOException {
+    	Sensor sensor = new Sensor("Temperature",
+    			                   new String[]{"Time", "CPU"}, 
+    			                   "80.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0"); 
+    	
+//    	System.out.println(sensor);
+//    	sensor.add(new double[][]{{600, 110.4}});
+//    	
+//    	System.out.println(sensor);
+//    	
+//    	sensor.add(new double[][]{{650, 120.4}});
+//    	
+//    	System.out.println(sensor);
+    	
     	// start the dancing
     	this.settings = new HashMap<String, String>();
 		this.settings.put("localhost IP", "169.254.131.160");

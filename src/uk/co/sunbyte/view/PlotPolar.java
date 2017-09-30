@@ -17,6 +17,9 @@ public class PlotPolar extends JPanel{
 	private PlotPolarDrawableArea drawableArea;
 
     private int rLength;
+    /**
+     * compasses available. The compass is the only one requiring a polar plot
+     */
     private int tLength; // we might have 2 or three compasses
 	
     public PlotPolar(String titleText, Dimension size, Dimension ticks, double[][] data) {

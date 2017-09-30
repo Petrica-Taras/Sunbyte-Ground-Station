@@ -2,13 +2,22 @@ package testModel;
 
 import static org.junit.Assert.*;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.junit.Test;
 
-public class testSensorObject {
+import uk.co.sunbyte.model.Sensor;
 
+public class testSensorObject {
+    Sensor sensor = new Sensor("Test Sensor");
 	@Test
 	public void test() {
-		fail("Not yet implemented");
+		/**
+		 * test the add functions
+		 */
+		// fail("Not yet implemented");
+		// assertEquals("Does test data exists? ", true, Files.exists(Paths.get("test data")))
 	}
 
 }

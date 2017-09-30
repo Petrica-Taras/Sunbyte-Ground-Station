@@ -1,103 +1,203 @@
 package uk.co.sunbyte.model;
 
+import java.util.ArrayList;
 
 /**
  * @author Petrica Taras
  * @version 1.0
  * 
- * Holds data from the sensors (both text and converts to floats).
- * Can conveniently flush the 
+ ********************************************************* 
+ * Holds data from the sensors.
+ * Can accomodate sensors with multiple outputs (i.e. the
+ * power sensors) but also to group same type of sensors
+ * in a single data structure, convenient for later use
+ * with plot classes (example: temperature sensors) 
+ * Can conveniently flush the sensor if MAX_DATA entries 
+ * are reached, in order to show only the last MAX_DATA
+ * collected entries 
+ * TODO - make stringData an array (correlated with floatData)
+ * in order to easily remove data from the beginning!
+ * 
+ * ******************************************************** 
+ * ... uh and actually ... now I notice this ... this is an
+ * alcoholic lager beer, isn't it John? ... 10% ... blimey 
+ * ... that's quite a lot isn't it John? 
+ * Yes Hugh, it's the most alcohol per mililiter, at the
+ * lowest cost in this corner shop 
+ * 
+ * ******************************************************** 
+ * 
  */
 public class Sensor {
-    private String name;
-    /* floatData: for storing actual data
+	private String sensorName; 
+    private ArrayList<String> dataNames;
+    /* sensorName: to store the sensor/sensor batch name
+     * floatData: for storing actual data in double format
+     * stringDataEntries: for storing actual data in String format
      * format (column headers): time, data1, data2 and so on
+     * maximum data available is MAX_DATA - after this, data at 
+     * the beginning of floatData & stringDataEntries is flushed out
+     * 
      * */
-    private double[][] floatData; 
-    private StringBuffer data;
+    private int MAX_DATA = 200;
+    private ArrayList<double[]> floatData; 
+    private ArrayList<String> stringDataEntries;
     
     // flags;
     private boolean isInitialized = false;
     
-    public Sensor(String name) {
-        this.name = name;
+    public Sensor(String sensorName) {
+    	this.sensorName = sensorName;
     }
     
-    public Sensor(String name, String data) {
-    	this.name = name;
-    	this.data = new StringBuffer(data);
-    	this.isInitialized = true;
+    public Sensor(String sensorName, String[] dataNames) {
+    	this(sensorName);
+    	this.dataNames = new ArrayList<String>(); 
+
+    	for(String s: dataNames) {
+    		this.dataNames.add(s);    		
+    	}
+        
+        floatData = new ArrayList<double[]>(); 
+    	this.isInitialized = true;        
+    }
+    
+    public Sensor(String sensorName, String[] dataNames, String data) {
+    	this(sensorName, dataNames);
+    	this.stringDataEntries = new ArrayList<String>();
     	
-    	this.stripStringData();
+    	String[] lines = data.split("\n");
+    	for(String s: lines) {
+    	    this.stringToDataOneField(s);
+    	}
     }    
     
+    /**
+     * tells if the sensor object is ready to receive data or not
+     * @return true if the proper constructors have been used 
+     */
     public boolean isEmpty() {
-    	return this.isInitialized;
+    	return !this.isInitialized;
     }
     
     public String toString() {
-    	return this.name+"\n\n"+data.toString();
+    	StringBuffer result = new StringBuffer("");
+    	for(String s: this.dataNames) {
+    		result.append(s + " ");
+    	}
+    	
+    	result.append("\n\n");
+    	
+    	for(String s: this.stringDataEntries) {
+    		result.append(s + "\n");
+    	}
+    	
+    	return result.toString();
     }
     
     public String getName() {
-		return name;
+		return this.sensorName;
 	}
     
     // TODO: floatData is not initialized everywhere is 
     // needed!
-    public double[][] getFloatData() {
+    public ArrayList<double[]> getFloatData() {
     	return floatData;
     }
 
-    public String flushContent() {
+    public ArrayList<String> flushContent() {
     	this.isInitialized = false;
-    	StringBuffer auxData = new StringBuffer(this.data.toString());
-    	this.data.setLength(0);
-    	this.floatData = new double[0][0]; // make sure it is empty!
+    	// ArrayList<String> auxData = (ArrayList<String>) this.stringDataEntries.clone();
+    	ArrayList<String> auxData = new ArrayList<String>(this.stringDataEntries);
+    	this.stringDataEntries.clear();
+    	this.floatData.clear(); // make sure it is empty!
     	
-    	return auxData.toString();    	
+    	return auxData;    	
     }
     
     /**
-     * redundant functionality here! 
+     * receives data in the expected format and appends it to the existing 
+     * one. TODO: DO NOT FORGET TO IMPLEMENT size checks against MAX_DATA
+     * @param 
      *
      */
     public void add(String newData) {
     	if(this.isEmpty()) {
-    		this.data = new StringBuffer(); 
+    		this.stringDataEntries = new ArrayList<String>(); 
     		this.isInitialized = true;
     	}
     	
-    	data.append("\n"+newData);
-    	this.stripStringData();
+    	stringDataEntries.add("\n"+newData);
+    	this.stringToDataOneField(newData);
     }
     
-    /*
-     * Splits string data (assuming it comes into data columns)
-     * does not make any assumptions about the number of rows and
-     * columns. 
-     * does not do any safety checks either, damn it!
-     * **/
-    private void stripStringData() {
-    	String[] lines = this.data.toString().split("\n");
-    	
-    	// both assumes nicely formatted string
-    	int rows = lines.length;
-    	int cols = lines[0].split(" ").length;
-    	
-    	this.floatData = new double[rows][cols]; // if floatData already exists it overrides it
-    	
-    	int rowIndex = 0; 
-    	
-    	for(String s: lines) {
-    	    String[] currentRow = s.split(" ");
-    	    for(int i = 0; i < cols; i++) {
-    	    	this.floatData[rowIndex][i] = Double.parseDouble(currentRow[i]);
-    	    }
-    	    // System.out.println(colIndex);    	    
-    	    rowIndex++;
+    @SuppressWarnings("unused")
+	private void add(double[] newData) {
+    	if(this.isEmpty()) {
+    		this.stringDataEntries = new ArrayList<String>();  
+    		this.isInitialized = true;
     	}
     	
-    	// bleah!
+    	int n = newData.length; 
+    	
+    	StringBuffer auxData = new StringBuffer(); 
+    	
+    	for(int i = 0; i < n; i++) {
+    		auxData.append(newData[i]);
+			auxData.append(" ");
+    	}
+    	this.stringToDataOneField(auxData.toString());
+    }
+    
+    public void add(double[][] newData) {
+    	if(this.isEmpty()) {
+    		this.stringDataEntries = new ArrayList<String>(); 
+    		this.isInitialized = true;
+    	}
+    	
+    	int rows = newData.length;
+    	int cols = newData[0].length;
+    	
+    	StringBuffer auxData = new StringBuffer(); 
+    	
+    	for(int i = 0; i < rows; i++) {
+    		for(int j = 0; j < cols; j++) {
+    			auxData.append(newData[i][j]);
+    			auxData.append(" ");
+    		}
+    		this.stringToDataOneField(auxData.toString());
+    		auxData.delete(0, auxData.length());
+    	}  	
+    }
+    
+    public void add(ArrayList<double[]> newData) {
+    	
+    }
+       
+    /*
+     * Splits string data (assuming it comes into data columns)
+     * does assume one row at a time. 
+     * does not do any safety checks either, damn it!
+     * **/
+    private void stringToDataOneField(String oneLineString) {
+    	String[] line = oneLineString.toString().split(" ");
+    	// assumes nicely formatted string
+    	double[] oneLineDouble = new double[line.length];
+    	for(int i = 0; i < line.length; i++) {
+    		oneLineDouble[i] = Double.parseDouble(line[i]);
+    	}    	
+    	
+    	if(this.floatData.size() < this.MAX_DATA) {
+    	    this.floatData.add(oneLineDouble); 
+    	} else {
+    		this.floatData.remove(0); 
+    		this.floatData.add(oneLineDouble);
+    	}
+    	
+    	this.stringDataEntries.add(oneLineString);
+    }
+    
+    public void writeToLog(Session session) {
+    	session.write(this.toString()); 
     }
 }

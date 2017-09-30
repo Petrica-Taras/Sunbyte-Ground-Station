@@ -9,6 +9,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
+import uk.co.sunbyte.model.Sensor;
+
 /**
  * @author Petrica Taras
  *
@@ -38,6 +40,10 @@ public class PlotCartesian extends JPanel{
 	private int yLength;
 	
 	int[] drawableAreaSizes; // wtf is this?
+	
+	public PlotCartesian(Sensor sensor, Dimension size, Dimension ticks) {
+		this(sensor.getAbcissae(), sensor.getName(), size, ticks, PlotCartesian.sensorToDouble(sensor)); // ugly fix
+	}
 	
 	
     public PlotCartesian(String xLabelText, String titleText, Dimension size, Dimension ticks, double[][] data) {
@@ -159,5 +165,22 @@ public class PlotCartesian extends JPanel{
         this.add(this.xLabel, gc);
     }
     
-    // private Dimension
+    /** very ugly fix, should not be static, it is only static because the 
+     *  constructor using a Sensor object as an argument was chained with
+     *  the one using a double[][] array!
+     */
+    private static double[][] sensorToDouble(Sensor sensor) {
+    	int m = sensor.getColumnSize(); // columns 
+		int n = sensor.getFieldsSize(); // rows
+		
+		double[][] data = new double[n][m]; 
+		
+		for(int i = 0; i < n; i++) {
+			for(int j = 0; j < m; j++) {
+				data[i][j] = sensor.getFloatData().get(i)[j]; 
+			}
+		}
+		
+		return data; 
+    }
 }

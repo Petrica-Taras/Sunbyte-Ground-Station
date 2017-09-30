@@ -99,8 +99,14 @@ public class Sensor {
 		return this.sensorName;
 	}
     
-    // TODO: floatData is not initialized everywhere is 
-    // needed!
+    public ArrayList<String> getDataNames() {
+    	return this.dataNames;
+    }
+    
+    public String getAbcissae() {
+    	return this.dataNames.get(0);
+    }
+    
     public ArrayList<double[]> getFloatData() {
     	return floatData;
     }
@@ -174,11 +180,12 @@ public class Sensor {
     	
     }
        
-    /*
+    /**
      * Splits string data (assuming it comes into data columns)
      * does assume one row at a time. 
      * does not do any safety checks either, damn it!
-     * **/
+     * 
+     * */
     private void stringToDataOneField(String oneLineString) {
     	String[] line = oneLineString.toString().split(" ");
     	// assumes nicely formatted string
@@ -195,6 +202,14 @@ public class Sensor {
     	}
     	
     	this.stringDataEntries.add(oneLineString);
+    }
+    
+    public int getFieldsSize() {
+    	return this.floatData.size();
+    }
+    
+    public int getColumnSize() {
+    	return this.dataNames.size(); 
     }
     
     public void writeToLog(Session session) {

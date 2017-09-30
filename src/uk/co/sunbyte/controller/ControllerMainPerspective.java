@@ -48,13 +48,12 @@ public class ControllerMainPerspective extends JFrame {
     EthernetConnection ethConn;
     
     public Map<String, String> settings; // centralises all of the settings
-            
+    private Sensor sensor;             
     
     public ControllerMainPerspective() throws IOException {
-    	Sensor sensor = new Sensor("Temperature",
-    			                   new String[]{"Time", "CPU"}, 
-    			                   "80.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0"); 
-    	   	
+    	sensor = new Sensor("Temperature",
+    	         new String[]{"Time", "CPU"}, 
+    	            "80.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");   	
     	// start the dancing
     	this.settings = new HashMap<String, String>();
 		this.settings.put("localhost IP", "169.254.131.160");
@@ -64,8 +63,9 @@ public class ControllerMainPerspective extends JFrame {
 		ethConn = new EthernetConnection("169.254.131.159", 9999);
 
         initUI();
-        // System.out.println(ethConn.pullData()); 
-        textPanel.appendText(ethConn.pullData());
+        String s = new String(ethConn.pullData()); 
+        
+        textPanel.appendText(s);
     	
     	// fast stuff okay!
 //    	bringTogether = new JPanel();
@@ -148,16 +148,20 @@ public class ControllerMainPerspective extends JFrame {
 		constraints.fill = GridBagConstraints.NONE;
 		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
 		
-		PlotCartesian plotCart = new PlotCartesian("Time [s]", 
-				             "Temperature [C]",
-				             new Dimension(900, 500),
-				             new Dimension(5, 4),
-				             new double[][]{{80.0, 20.0}, 
-                                            {95.0, 22.0},
-                                            {101.0, 22.1},
-			                                {200.0, 40.0}, 
-			                                {350.0, 75.0}, 
-			                                {500.0, 100.0}});
+//		PlotCartesian plotCart = new PlotCartesian("Time [s]", 
+//				             "Temperature [C]",
+//				             new Dimension(900, 500),
+//				             new Dimension(5, 4),
+//				             new double[][]{{80.0, 20.0}, 
+//                                            {95.0, 22.0},
+//                                            {101.0, 22.1},
+//			                                {200.0, 40.0}, 
+//			                                {350.0, 75.0}, 
+//			                                {500.0, 100.0}, 
+//			                                {550.0, 101.5}});
+		PlotCartesian plotCart = new PlotCartesian(sensor,
+	                                               new Dimension(900, 500),
+	                                               new Dimension(5, 4));
 		this.add(plotCart, constraints);
         // second cell		
 		constraints.gridx = 1; 

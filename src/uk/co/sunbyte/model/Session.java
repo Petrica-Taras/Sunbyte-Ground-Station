@@ -77,7 +77,9 @@ public class Session {
     	Path path = Paths.get(sessionPathFolder);
     	
     	Files.createDirectories(path);
+    	sessionLogFilename = this.uuid + ".log";
     	this.write("Session started at: " + this.uuid + "\n");
+
     	lastSeen = getLastSeen();
     }
     

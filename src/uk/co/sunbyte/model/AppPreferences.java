@@ -40,6 +40,10 @@ public class AppPreferences {
 		return prefs.get("Ground Station IP", "172.16.18.130");
 	}
 	
+	public String getGroundStationName() {
+		return "Ground Station IP";
+	}
+	
 	public String getMainControllerIP() {
 		return prefs.get("Main Controller IP", "172.16.18.131");
 	}

@@ -11,11 +11,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
-import uk.co.sunbyte.controller.ControllerMainPerspective;
+import uk.co.sunbyte.controller.Controller;
 
 public class Menubar extends JMenuBar {
 	
-    public Menubar(ControllerMainPerspective controllerMainPerspective) {
+    public Menubar(Controller controllerMainPerspective) {
     	//Build the Sessions menu.
     	JMenu sessions = new JMenu("Sessions");
     	sessions.setMnemonic(KeyEvent.VK_A);

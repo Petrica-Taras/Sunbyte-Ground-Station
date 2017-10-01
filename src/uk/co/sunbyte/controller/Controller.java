@@ -31,7 +31,7 @@ import uk.co.sunbyte.view.StatusBar;
 import uk.co.sunbyte.view.TextPanel;
 
 
-public class ControllerMainPerspective extends JFrame {
+public class Controller extends JFrame {
 //	JButton LeoDiagnose;
 //	JButton EthMDiagnose; 
 //	JButton Vibes;
@@ -61,10 +61,10 @@ public class ControllerMainPerspective extends JFrame {
     public Map<String, String> settings; // centralises all of the settings
     private Sensor sensor;             
     
-    public ControllerMainPerspective() throws IOException, InterruptedException {
+    public Controller() throws IOException, InterruptedException {
     	session = Session.getInstance(); // this should be a singleton!
     	
-    	System.out.println(session.getLastSeen());
+		menubar = new Menubar(this);
     	
     	sensor = new Sensor("Temperature",
     	         new String[]{"Time", "CPU"}, 
@@ -73,7 +73,7 @@ public class ControllerMainPerspective extends JFrame {
 //    	System.out.println(height);
     	// start the dancing
     	this.settings = new HashMap<String, String>();
-		this.settings.put("localhost IP", "169.254.131.160");
+		this.settings.put(session.getAppPref().getGroundStationName(), session.getAppPref().getGroundStationIP());
 		this.settings.put("Leonardo IP", "169.254.131.159");
 		this.settings.put("EtherMega IP", "169.254.131.158");
 		
@@ -108,7 +108,7 @@ public class ControllerMainPerspective extends JFrame {
 		statusbar = new StatusBar(); 
         this.statusbar.setLastMeasurement(session.getLastSeen());
         
-        initUI(); // just put everything inside the layout so I can focus on logic here
+        initMainPerspectiveUI(); // just put everything inside the layout so I can focus on logic here
         
         String s = new String(ethConn.pullData()); 
         String v = new String(ethConn.pullData()); 
@@ -180,9 +180,7 @@ public class ControllerMainPerspective extends JFrame {
       
 
     }
-	private void initUI() {
-		menubar = new Menubar(this);
-		
+	private void initMainPerspectiveUI() {		
 		layout = new GridBagLayout();
 		this.constraints = new GridBagConstraints();
 		this.setLayout(layout);
@@ -196,8 +194,6 @@ public class ControllerMainPerspective extends JFrame {
 		constraints.fill = GridBagConstraints.NONE;
 		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
 		
-
-		
 		this.add(plotCart, constraints);
         // second cell		
 		constraints.gridx = 1; 
@@ -207,7 +203,6 @@ public class ControllerMainPerspective extends JFrame {
 		
 		constraints.fill = GridBagConstraints.NONE;
 		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
-		
 				                           
 		this.add(plotPolar, constraints);
 		Border bd1 = BorderFactory.createLineBorder(new Color(255, 0, 0));    
@@ -222,9 +217,7 @@ public class ControllerMainPerspective extends JFrame {
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
 		constraints.gridwidth = 2;
-
-		
-         
+        
         Border bd2 = BorderFactory.createLineBorder(new Color(255, 0, 0));  
 		this.add(textPanel, constraints);
 		textPanel.setBorder(bd2); 
@@ -237,13 +230,9 @@ public class ControllerMainPerspective extends JFrame {
 		constraints.gridwidth = 2; // or as many cols available
 		
 		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.anchor = GridBagConstraints.LAST_LINE_START;
-		
-		
+		constraints.anchor = GridBagConstraints.LAST_LINE_START;	
 		
 		this.add(statusbar, constraints);
-          	
-//    	
 		
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		this.setVisible(true); 
@@ -260,8 +249,4 @@ public class ControllerMainPerspective extends JFrame {
 	public void addWidget(JPanel obj) {
 		this.add(obj);
 	}
-	
-	private void initSettingsFromXMLfile() {
-		
-	}    
 }

@@ -16,19 +16,10 @@ public class PlotPolar extends JPanel{
 	
 	private PlotPolarDrawableArea drawableArea;
 
-    private int rLength;
-    /**
-     * compasses available. The compass is the only one requiring a polar plot
-     */
-    private int tLength; // we might have 2 or three compasses
-	
-    public PlotPolar(String titleText, Dimension size, Dimension ticks, double[][] data) {
+    public PlotPolar(String titleText, Dimension size, Dimension ticks, double[] dataDeadZone, double dataHeading) {
     	this.setBackground(new Color(255, 255, 255));
     	this.setLayout(new GridBagLayout());
-    	
-    	this.rLength = data.length;
-    	this.tLength = data[0].length; // validation should happen here 
-    	
+    	    	
     	/* fix size of the entire plot widget so we can 
     	then distribute to its subcomponents*/    	
     	this.setPreferredSize(size);
@@ -40,7 +31,7 @@ public class PlotPolar extends JPanel{
     	
     	Dimension dimTitle = title.getPreferredSize();
     	
-    	drawableArea = new PlotPolarDrawableArea(size.width-20, size.height-dimTitle.height-30, ticks, data);
+    	drawableArea = new PlotPolarDrawableArea(size.width-20, size.height-dimTitle.height-30, ticks, dataDeadZone, dataHeading);
     	
     	GridBagConstraints gc = new GridBagConstraints();
 

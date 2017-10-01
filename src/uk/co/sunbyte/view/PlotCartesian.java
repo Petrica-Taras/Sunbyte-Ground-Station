@@ -13,23 +13,30 @@ import uk.co.sunbyte.model.Sensor;
 
 /**
  * @author Petrica Taras
+ * @version 1.0
  *
+ **************************************************************************************
  * TODO: make sure the drawableArea size is not gonna be bigger
  * than available space (widget will not work correctly)
  * 
  * Strategy - align the xLabels/yLabels using carefully computed weights
  * add validation (i.e. what happens when no data is passed on)
  * add possibility of keeping the old data and just append and refresh the newest one!
+ *
+ * *************************************************************************************
+ * "When can we have a policy meeting?"
+ * "We've taken the liberty of drawing up a list of priorities"
+ * "Oh yeah?"
+ * "Yeah ... so ... here is general Eisenhower's telephone number, here is the English 
+ * for we give up and here is an analysis of our military situation in one rude word"  
+ * *************************************************************************************
  * 
  */
-public class PlotCartesian extends JPanel{
-	// private String xLabelText;
-	// private String yLabelText;
-	// private String titleText;
-	
-	// JLabel yLabel;
+@SuppressWarnings("serial")
+public class PlotCartesian extends JPanel{	
 	private JLabel[] xTicks;
 	private JLabel[] yTicks;
+	private String[] legend; // initialize this!
 
 	private JLabel title; 
 	private JLabel xLabel;
@@ -68,24 +75,31 @@ public class PlotCartesian extends JPanel{
     	xLabel = new JLabel(xLabelText);
 
     	double xInterval = (data[this.xLength-1][0]-data[0][0])/(ticks.width-1);
+    	double yInterval = (data[this.yLength-1][0]-data[0][1])/(ticks.height-1);
     	
         for(int i = 0; i < ticks.width; i++) {
     	    xTicks[i] = new JLabel(Double.toString(data[0][0]+xInterval*i));
         	// xTicks[i].setText(Double.toString(data[i][0]));
             // System.out.println(Double.toString(data[i][0]));
-        }    	
+        }    
+        
+        for(int i = 0; i < ticks.height; i++) {
+    	    yTicks[i] = new JLabel(Double.toString(data[0][1]+yInterval*i));
+        }    
     	
     	// end text widget creation
         
-        /* Calculate sizes for title and xLabel widgets
-         * so we can fix the drawableArea height, based
+        /* Calculate sizes for title, xLabel and yTicks widgets
+         * so we can set the drawableArea height, based
          * on available space
          */
     	Dimension dimTitle = title.getPreferredSize();  
     	Dimension dimXTicks = xTicks[0].getPreferredSize(); // only interested in height now 
     	Dimension dimXLabel = xLabel.getPreferredSize();
+    	Dimension dimYLabel = yTicks[0].getPreferredSize();
     	
-        drawableArea = new PlotCartesianDrawableArea(size.width-20, size.height-dimTitle.height-dimXTicks.height-dimXLabel.height-30, ticks, data);
+        drawableArea = new PlotCartesianDrawableArea(size.width-20-dimYLabel.width, 
+        		                                     size.height-dimTitle.height-dimXTicks.height-dimXLabel.height-30-dimYLabel.height, ticks, data);
     	
     	GridBagConstraints gc = new GridBagConstraints();
 
@@ -150,7 +164,11 @@ public class PlotCartesian extends JPanel{
             xTicks[i].setBorder(bx[i]);
             // gc.anchor = GridBagConstraints.CENTER;
         }
-
+        
+        ///// y axis values cell //// 
+        for(int i = 0; i < ticks.width; i++) {
+        	// do magic here
+        }
         /////////////////// fourth row ////////////////
         gc.weightx = 0.1;
         gc.weighty = 0.2; 

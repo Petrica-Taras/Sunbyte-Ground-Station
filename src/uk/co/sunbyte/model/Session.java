@@ -16,18 +16,13 @@ import java.util.UUID;
  *
  *********************************************************
  * Keeps track of the current
- * session. Should be a singleton. Two constructors are necessary:
- * 1) new, fresh session
- * 2) resuming an old or interrupted existing session
+ * session (singleton)
  *  
  ********************************************************* 
  * It works like this:
- * 1) creates a folder (constructor 1) - if constructor 2 
- * is called it uses the already existing constructor
+ * 1) creates a folder 
  * 2) keeps a path to that folder
  * 3) creates a session log (only for that particular session)
- * if constructor 1 is used. If not (constructor 2), it just 
- * appends to existing ones
  * 4) has a method write which logs all the events in the journal
  *  
  *********************************************************
@@ -38,12 +33,11 @@ import java.util.UUID;
 public class Session {
 	private static Session INSTANCE = null;
 	// private UUID uuid;
-	private String uuid; // keep it sexy!
+	private String uuid;
 	
-	// should get this from the View
 	// should dig into Java, surely a string can be escaped 
 	// with some method to get rid off "\"	
-	private String localPathFolder;// = "H:\\code\\java\\workspace\\ground station";
+	private String localPathFolder;
 	
 	private String sessionPathFolder; 
 	private String sessionLogFilename;

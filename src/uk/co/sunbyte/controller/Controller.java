@@ -77,31 +77,17 @@ public class Controller extends JFrame {
 		this.settings.put("Leonardo IP", "169.254.131.159");
 		this.settings.put("EtherMega IP", "169.254.131.158");
 		
-		ethConn = new EthernetConnection("169.254.131.159", 9999);
-		ethConn.pushData("f"); 
-//		PlotCartesian plotCart = new PlotCartesian("Time [s]", 
-//        "Temperature [C]",
-//        new Dimension(900, 500),
-//        new Dimension(5, 4),
-//        new double[][]{{80.0, 20.0}, 
-//                       {95.0, 22.0},
-//                       {101.0, 22.1},
-//                       {200.0, 40.0}, 
-//                       {350.0, 75.0}, 
-//                       {500.0, 100.0}, 
-//                       {550.0, 101.5}});		
+		ethConn = new EthernetConnection("172.16.18.131", 9999);
+		ethConn.pushData("testing"); 
+		
 		this.plotCart = new PlotCartesian(sensor,
-                new Dimension(900, 500),
-                new Dimension(5, 4));
+                                          new Dimension(900, 500),
+                                          new Dimension(5, 4));
 		this.plotPolar = new PlotPolar("Orientation", 
-                new Dimension(500, 500),
-                new Dimension(5, 36),
-	            new double[][]{{80.0, 20.0}, 
-                    {95.0, 22.0},
-                    {101.0, 22.1},
-                    {200.0, 40.0}, 
-                    {350.0, 75.0}, 
-                    {500.0, 100.0}});
+                                          new Dimension(500, 500),
+                                          new Dimension(5, 36),
+	                                      new double[]{210.0, 310.0},
+                                          80.0);
 		
 		textPanel = new TextPanel(new Dimension(1900, 500));
 		

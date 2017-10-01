@@ -17,7 +17,10 @@ public class PlotPolarDrawableArea extends JPanel{
 	int xTicks;
 	int yTicks;	
 	
-	public PlotPolarDrawableArea(int width, int height, Dimension ticks, double[][] data) {
+	int[] deadZone; 
+	int heading; 
+	
+	public PlotPolarDrawableArea(int width, int height, Dimension ticks, double[] dataDeadZone, double dataHeading) {
 		this.setPreferredSize(new Dimension(width, height));
 		this.setMaximumSize(new Dimension(width, height));
 		this.setMinimumSize(new Dimension(width, height));
@@ -27,6 +30,12 @@ public class PlotPolarDrawableArea extends JPanel{
 		
 		this.xTicks = ticks.width;
 		this.yTicks = ticks.height;
+		
+		this.deadZone = new int[2];
+		
+		this.deadZone[0] = (int) dataDeadZone[0];
+		this.deadZone[1] = (int) dataDeadZone[1];
+		this.heading = (int) heading; 
 		
     	this.setBackground(new Color(255, 255, 255));		
 	}
@@ -52,13 +61,10 @@ public class PlotPolarDrawableArea extends JPanel{
                 
         // deadzone delimitation
         g.setColor(Color.RED);
-//        System.out.println(h);
-//        System.out.println(this.width);
-//        System.out.println(this.height);
-//        System.out.println(w);
+
         g.fillArc(this.width/2-pixelRadius, this.height/2-pixelRadius, 
       		      pixelRadius*2, pixelRadius*2,
-      		      210, 100);
+      		      this.deadZone[0], Math.abs(this.deadZone[1]-this.deadZone[0])); // TODO: double check this!
         
         g.setColor(Color.BLUE);
         

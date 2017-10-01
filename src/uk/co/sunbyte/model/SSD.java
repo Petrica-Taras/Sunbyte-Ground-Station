@@ -78,8 +78,8 @@ public class SSD implements IO {
 	    writer.close();
 	}
 	@Override
-	public void Log(Session log) {
-		log.write("Flushed to disk!");
+	public void writeToLog(Session session) throws IOException {
+		session.write("Flushed to disk!");
 		
 	}	
 		

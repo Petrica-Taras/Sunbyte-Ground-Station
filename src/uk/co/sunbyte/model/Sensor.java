@@ -1,5 +1,6 @@
 package uk.co.sunbyte.model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -281,7 +282,7 @@ public class Sensor {
     	return new Sensor(newSensorName, newDataNames, newDataEntries.toString());
     }
     
-    public void writeToLog(Session session) {
+    public void writeToLog(Session session) throws IOException {
     	session.write(this.toString()); 
     }
 }

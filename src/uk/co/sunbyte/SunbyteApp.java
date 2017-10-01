@@ -7,7 +7,7 @@ import uk.co.sunbyte.model.*;
 import uk.co.sunbyte.view.PlotCartesian;
 
 public class SunbyteApp {
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 		// Window mainWin = new Window(); // let the party begin :D
         //EthernetConnection ethConn = new EthernetConnection("169.254.131.159", 9999);
         

@@ -34,7 +34,7 @@ public interface IO {
      * manager know when it writes/reads from
      * data streams
      * */
-    public void Log(Session log);
+    public void writeToLog(Session session) throws IOException;
     
     /* to force implementations to strip data into strings
      * so it can be passed around */

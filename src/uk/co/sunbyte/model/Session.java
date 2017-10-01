@@ -1,5 +1,7 @@
 package uk.co.sunbyte.model;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,56 +36,60 @@ import java.util.UUID;
  *
  */
 public class Session {
-	// private static final Session INSTANCE = new Session();
-	
+	private static Session INSTANCE = null;
 	// private UUID uuid;
 	private String uuid; // keep it sexy!
 	
 	// should get this from the View
 	// should dig into Java, surely a string can be escaped 
 	// with some method to get rid off "\"	
-	private String localPathFolder = "F:\\code\\java\\workspace\\ground station";
+	private String localPathFolder;// = "H:\\code\\java\\workspace\\ground station";
+	
 	private String sessionPathFolder; 
 	private String sessionLogFilename;
+	private BufferedWriter sessionLog;
 	
-    public Session () throws IOException {
+	private AppPreferences appPref;
+	
+	private String lastSeen;
+	
+    private Session () throws IOException, InterruptedException {
+    	appPref = new AppPreferences(); 
     	// this.uuid = UUID.randomUUID();
     	// make it out of date for now, should be unique enough!
     	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss");
-    	Date date = new Date();
-    	this.uuid = dateFormat.format(date);    	
+
+    	this.uuid = dateFormat.format(new Date());    	
     	
     	// creates folder
+    	Path currentRelativePath = Paths.get("");
+    	localPathFolder = currentRelativePath.toAbsolutePath().toString();
+    	//System.out.println(localPathFolder);
     	// Path path = Paths.get(localPath+"\\"+uuid.toString());
-    	sessionPathFolder = localPathFolder+"\\"+uuid;
+    	sessionPathFolder = localPathFolder+"\\"+this.uuid;
     	
     	if(this.checkItExistOnDisk()) {
-    		sessionPathFolder = sessionPathFolder +" "+ UUID.randomUUID().toString();
+    		Thread.sleep(1500);
+        	this.uuid = dateFormat.format(new Date());
+    		sessionPathFolder = sessionPathFolder +" "+ this.uuid;
     	}
     	
     	Path path = Paths.get(sessionPathFolder);
     	
     	Files.createDirectories(path);
-    	
-    	
-    	
+    	this.write("Session started at: " + this.uuid + "\n");
+    	lastSeen = getLastSeen();
     }
     
-    // this one should be easier on test cases!
-    public Session(String uuid) throws IOException {
-	    this.sessionPathFolder = this.localPathFolder+"\\" + uuid;     	
-    	if(!this.checkItExistOnDisk()) {
-    	    Path path = Paths.get(this.sessionPathFolder);
-    	    Files.createDirectories(path);
-    	    
-    	} else {
-    		// TODO: need to finish this constructor!
-    	}
-    }
+	public AppPreferences getAppPref() {
+		return appPref;
+	}
 
-	public void write(String string) {
-		// TODO Auto-generated method stub
-		
+	public void write(String s) throws IOException {
+		this.sessionLog = new BufferedWriter(new FileWriter(sessionPathFolder +"\\"+ sessionLogFilename, true));
+		this.sessionLog.write(s);
+	    this.sessionLog.flush();
+		this.sessionLog.close();
 	}
 
 	/**
@@ -94,10 +100,17 @@ public class Session {
 		Path path = Paths.get(this.sessionPathFolder);
 		if(Files.exists(path)) {
 			return true;
-		};
+		}
 		return false;
 	}
 
- 
+    public String getLastSeen() {
+    	SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+    	return dateFormat.format(new Date());
+    }
     
+    public static synchronized Session getInstance() throws IOException, InterruptedException {
+        if (INSTANCE == null) INSTANCE = new Session();
+        return INSTANCE;
+    }
 }

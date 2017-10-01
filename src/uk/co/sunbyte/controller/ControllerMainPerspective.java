@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import javax.swing.border.Border;
 
 import uk.co.sunbyte.model.EthernetConnection;
 import uk.co.sunbyte.model.Sensor;
+import uk.co.sunbyte.model.Session;
 import uk.co.sunbyte.view.Menubar;
 import uk.co.sunbyte.view.PlotCartesian;
 import uk.co.sunbyte.view.PlotPolar;
@@ -35,6 +37,9 @@ public class ControllerMainPerspective extends JFrame {
 //	JButton Vibes;
 //	JPanel bringTogether;
 //	JTextArea InfoSensors; 
+	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	double width = screenSize.getWidth();
+	double height = screenSize.getHeight();
 	
     private String winTitle = "Sunbyte Project: ";		
     public Menubar menubar;
@@ -46,17 +51,26 @@ public class ControllerMainPerspective extends JFrame {
     public PlotPolar plotPolar;
     
     public TextPanel textPanel; 
-    // default will start in full screen
+    // default will start in full screen - does it have to?
+    
+    Session session; // should have a persistence object as a member - this should remember the widget sizes
+    
     
     EthernetConnection ethConn;
     
     public Map<String, String> settings; // centralises all of the settings
     private Sensor sensor;             
     
-    public ControllerMainPerspective() throws IOException {
+    public ControllerMainPerspective() throws IOException, InterruptedException {
+    	session = Session.getInstance(); // this should be a singleton!
+    	
+    	System.out.println(session.getLastSeen());
+    	
     	sensor = new Sensor("Temperature",
     	         new String[]{"Time", "CPU"}, 
-    	            "80.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");   	
+    	            "80.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
+//    	System.out.println(width);
+//    	System.out.println(height);
     	// start the dancing
     	this.settings = new HashMap<String, String>();
 		this.settings.put("localhost IP", "169.254.131.160");
@@ -64,7 +78,7 @@ public class ControllerMainPerspective extends JFrame {
 		this.settings.put("EtherMega IP", "169.254.131.158");
 		
 		ethConn = new EthernetConnection("169.254.131.159", 9999);
-		
+		ethConn.pushData("f"); 
 //		PlotCartesian plotCart = new PlotCartesian("Time [s]", 
 //        "Temperature [C]",
 //        new Dimension(900, 500),
@@ -89,11 +103,17 @@ public class ControllerMainPerspective extends JFrame {
                     {350.0, 75.0}, 
                     {500.0, 100.0}});
 		
+		textPanel = new TextPanel(new Dimension(1900, 500));
+		
+		statusbar = new StatusBar(); 
+        this.statusbar.setLastMeasurement(session.getLastSeen());
+        
         initUI(); // just put everything inside the layout so I can focus on logic here
         
         String s = new String(ethConn.pullData()); 
-
-        
+        String v = new String(ethConn.pullData()); 
+        System.out.println(s);
+        System.out.println(v);
         textPanel.appendText(s);
     	
     	// fast stuff okay!
@@ -162,7 +182,6 @@ public class ControllerMainPerspective extends JFrame {
     }
 	private void initUI() {
 		menubar = new Menubar(this);
-		statusbar = new StatusBar(); 
 		
 		layout = new GridBagLayout();
 		this.constraints = new GridBagConstraints();
@@ -205,7 +224,7 @@ public class ControllerMainPerspective extends JFrame {
 		constraints.gridwidth = 2;
 
 		
-        textPanel = new TextPanel(new Dimension(1900, 500)); 
+         
         Border bd2 = BorderFactory.createLineBorder(new Color(255, 0, 0));  
 		this.add(textPanel, constraints);
 		textPanel.setBorder(bd2); 
@@ -228,6 +247,8 @@ public class ControllerMainPerspective extends JFrame {
 		
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		this.setVisible(true); 
+		
+		this.setMinimumSize(new Dimension(1024, 768));
 		
 		this.setTitle(winTitle);
 		

@@ -15,7 +15,7 @@ public class StatusBar extends JPanel {
     private Border bd;
     
     public StatusBar() {
-    	this.meas = new JLabel("Last measurement: 14:55:00");
+    	this.meas = new JLabel("Last measurement: ");
     	this.meas.setForeground(new Color(0, 0, 255)); 
     	this.online = new JLabel("Main: yes| Sensors: yes| Motors: yes");
     	
@@ -25,5 +25,9 @@ public class StatusBar extends JPanel {
     	this.add(this.online);
     	
     	this.setBorder(this.bd);
+    }
+    
+    public void setLastMeasurement(String date) {
+    	this.meas.setText("Last measurement: " + date);
     }
 }

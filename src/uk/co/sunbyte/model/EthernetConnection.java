@@ -78,11 +78,26 @@ public class EthernetConnection implements IO {
 	        clientSocket = serverSocket.accept();
             BufferedReader is = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 //	    // As long as we receive data, echo that data back to the client.
-//	           //while (true) {
+	       //while (true) {
 //	             line = is.readLine();
-            data = this.readFromClient(is);
-	        System.out.println(data); 
-	           //}
+//            new Thread() {
+//                public void run() {
+//                	String data = new String();
+//                	try {
+//						data = readFromClient(is);
+//					} catch (IOException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//        	        System.out.println(data); 
+//                }
+//            }.start();
+            // while(true) {
+            data = readFromClient(is);
+            System.out.println(data);
+            System.out.println("xxxxx");
+            // }
+	        //}
 	        
 	    }
 	    catch (IOException e) {
@@ -124,7 +139,7 @@ public class EthernetConnection implements IO {
 	}
 
 	@Override
-	public void Log(Session log) {
+	public void writeToLog(Session session) {
 		// TODO Auto-generated method stub
 		
 	}	

@@ -1,13 +1,10 @@
 package uk.co.sunbyte.model;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.io.Reader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -130,6 +127,8 @@ public class EthernetConnection implements IO {
 	        clientSocket = new Socket(this.local, this.portNumber);
 	        DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
 	        outToServer.writeBytes(s);
+	        InputStream clientInputStream = clientSocket.getInputStream();
+	        System.out.println("---Read from client: " + readFromClient(new BufferedReader(new InputStreamReader(clientInputStream))));
 	        clientSocket.close();
 	    }
 	    catch (IOException e) {

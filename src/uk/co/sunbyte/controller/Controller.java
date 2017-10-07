@@ -9,21 +9,33 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
 import uk.co.sunbyte.model.EthernetConnection;
+import uk.co.sunbyte.model.ImageReader;
 import uk.co.sunbyte.model.Sensor;
 import uk.co.sunbyte.model.Session;
+import uk.co.sunbyte.view.ImagePanel;
 import uk.co.sunbyte.view.Menubar;
 import uk.co.sunbyte.view.PlotCartesian;
 import uk.co.sunbyte.view.PlotPolar;
@@ -43,34 +55,101 @@ public class Controller extends JFrame {
 	
     private String winTitle = "Sunbyte Project: ";		
     public Menubar menubar;
+    
     private GridBagLayout layout;
     private GridBagConstraints constraints; 
+    
     public StatusBar statusbar;	
     
-    public PlotCartesian plotCart;
+    public PlotCartesian plotCart11;
+    public PlotCartesian plotCart12;
+    public PlotCartesian plotCart21;
+    public PlotCartesian plotCart22;
+    public PlotCartesian plotCart31;
+    public PlotCartesian plotCart32;
+    
     public PlotPolar plotPolar;
     
+    public ImagePanel img; 
+    
     public TextPanel textPanel; 
+    /**
+     * main containers
+     */
+    JTabbedPane main;
+	JPanel defaultPerspective;
+	JPanel imagingPerspective;
+	JPanel settingsPerspective;  
+	// top level can be used for a JToolBar() if you want a quick toolbar
+	BorderLayout mainBL;
+    
     // default will start in full screen - does it have to?
     
     Session session; // should have a persistence object as a member - this should remember the widget sizes
     
-    
     EthernetConnection ethConn;
     
+    /**
+     * 
+     * Important for layout management and keeping track of various 
+     * widgets dimensions
+     * If widget border resizing is to be 
+     * implemented later on, this is crucial.
+     * Also, it should be populated as soon as components are added.  
+     * 
+     * */
+    private Dimension[] layoutPartitions; 
+    
     public Map<String, String> settings; // centralises all of the settings
-    private Sensor sensor;             
+    
+    private Sensor sensor11;    
+    private Sensor sensor12;
+    private Sensor sensor21;    
+    private Sensor sensor22;
+    private Sensor sensor31;    
+    private Sensor sensor32;
     
     public Controller() throws IOException, InterruptedException {
-    	session = Session.getInstance(); // this should be a singleton!
+    	// first of all this as it contains settings for the rest of the app!
+    	session = Session.getInstance(); 
     	
+    	// always on screen
 		menubar = new Menubar(this);
-    	
-    	sensor = new Sensor("Temperature",
+		main = new JTabbedPane();
+		statusbar = new StatusBar();
+		
+        this.statusbar.setLastMeasurement(session.getLastSeen());
+        
+		
+		imagingPerspective  = new JPanel();
+		settingsPerspective = new JPanel(); 
+		
+		mainBL = new BorderLayout();
+		this.setLayout(this.mainBL);
+			
+		
+    	sensor11 = new Sensor("Plot 11",
     	         new String[]{"Time", "CPU"}, 
     	            "80.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
-//    	System.out.println(width);
-//    	System.out.println(height);
+    	sensor12 = new Sensor("Plot 12",
+   	         new String[]{"Time", "CPU"}, 
+   	            "40.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
+
+    	sensor21 = new Sensor("Plot 21",
+   	         new String[]{"Time", "CPU"}, 
+   	            "80.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
+      	sensor22 = new Sensor("Plot 22",
+  	         new String[]{"Time", "CPU"}, 
+  	            "40.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
+
+      	sensor31 = new Sensor("Plot 31",
+   	         new String[]{"Time", "CPU"}, 
+   	            "80.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
+     	sensor32 = new Sensor("Plot 32",
+  	         new String[]{"Time", "CPU"}, 
+  	            "40.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
+
+      	
     	// start the dancing
     	this.settings = new HashMap<String, String>();
 		this.settings.put(session.getAppPref().getGroundStationName(), session.getAppPref().getGroundStationIP());
@@ -78,30 +157,78 @@ public class Controller extends JFrame {
 		this.settings.put("EtherMega IP", "169.254.131.158");
 		
 		ethConn = new EthernetConnection("172.16.18.131", 9999);
-		ethConn.pushData("testing"); 
+		// ethConn.pushData("testing"); 
+		// this.img = new ImagePanel("hot_air_balloon_kidnapping.png");
+		this.img = new ImagePanel("test.png");
 		
-		this.plotCart = new PlotCartesian(sensor,
-                                          new Dimension(900, 500),
+		// Dimension plot = this.getPlotSize();
+		// System.out.println(plot);
+		
+		Dimension plotDim = new Dimension((int) (this.width*0.35), 
+				                          (int) ((this.height-28)*0.3));
+		Dimension restPlotDim = new Dimension((int) (this.width*0.30),
+				                              (int) (this.height-28));
+		this.plotCart11 = new PlotCartesian(sensor11,
+                                          plotDim,
                                           new Dimension(5, 4));
+		this.plotCart12 = new PlotCartesian(sensor12,
+                plotDim,
+                new Dimension(5, 4));
+		this.plotCart21 = new PlotCartesian(sensor21,
+                plotDim,
+                new Dimension(5, 4));
+		this.plotCart22 = new PlotCartesian(sensor22,
+                plotDim,
+                new Dimension(5, 4));
+		this.plotCart31 = new PlotCartesian(sensor31,
+                plotDim,
+                new Dimension(5, 4));
+		this.plotCart32 = new PlotCartesian(sensor32,
+                plotDim,
+                new Dimension(5, 4));		
+//		this.plotCart = new PlotCartesian(sensor12,
+//                new Dimension(900, 500),
+//                new Dimension(5, 4));
+		
 		this.plotPolar = new PlotPolar("Orientation", 
-                                          new Dimension(500, 500),
+                                          new Dimension((int) plotDim.getHeight(), (int) plotDim.getHeight()),
                                           new Dimension(5, 36),
 	                                      new double[]{210.0, 310.0},
                                           80.0);
 		
-		textPanel = new TextPanel(new Dimension(1900, 500));
+		textPanel = new TextPanel(restPlotDim);
+        
+//        initMainPerspectiveUI(); // just put everything inside the layout so I can focus on logic here
+        
+        // String s = new String(ethConn.pullData()); 
+        // String v = new String(ethConn.pullData()); 
+//        System.out.println(s);
+//        System.out.println(v);
+//        textPanel.appendText(s);
+
+        // do this kind of stuff at the end to make sure all widgets are initialized
+		// this.initMainPerspectiveUI(this.defaultPerspective);        
+        defaultPerspective  = this.initMainPerspectiveUI(); // new JPanel();
+        
+		this.main.addTab("Sensors", this.defaultPerspective);
+		this.main.addTab("Imaging", imagingPerspective);
+		this.main.addTab("Settings", settingsPerspective);		
 		
-		statusbar = new StatusBar(); 
-        this.statusbar.setLastMeasurement(session.getLastSeen());
-        
-        initMainPerspectiveUI(); // just put everything inside the layout so I can focus on logic here
-        
-        String s = new String(ethConn.pullData()); 
-        String v = new String(ethConn.pullData()); 
-        System.out.println(s);
-        System.out.println(v);
-        textPanel.appendText(s);
-    	
+		this.add(this.main, BorderLayout.CENTER);
+		this.add(this.statusbar, BorderLayout.SOUTH);		
+		
+		this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		this.setVisible(true);
+		
+
+		
+		this.setMinimumSize(new Dimension(1024, 768));
+		
+		this.setTitle(winTitle);
+		
+		ImageIcon img = new ImageIcon("C:/Users/Petrica Taras/workspace/ground station/src/res/images/iconApp_32x32.png");
+		this.setIconImage(img.getImage());	
+		
     	// fast stuff okay!
 //    	bringTogether = new JPanel();
 //    	
@@ -166,12 +293,14 @@ public class Controller extends JFrame {
       
 
     }
-	private void initMainPerspectiveUI() {		
-		layout = new GridBagLayout();
-		this.constraints = new GridBagConstraints();
-		this.setLayout(layout);
+    
+	private JPanel initMainPerspectiveUI() {
+		JPanel container = new JPanel(); 
+		GridBagLayout layout = new GridBagLayout();
+		GridBagConstraints constraints = new GridBagConstraints();
+		container.setLayout(layout);
 		
-		// one cell for now
+		// 11
 		constraints.gridx = 0;
 		constraints.gridy = 0; 
 		constraints.weightx = 0.01;
@@ -180,59 +309,137 @@ public class Controller extends JFrame {
 		constraints.fill = GridBagConstraints.NONE;
 		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
 		
-		this.add(plotCart, constraints);
-        // second cell		
-		constraints.gridx = 1; 
+		container.add(plotCart11, constraints);
+
+		// 12
+		constraints.gridx = 1;
 		constraints.gridy = 0; 
-		constraints.weightx = 1; // these shall be computed!
+		constraints.weightx = 0.01;
 		constraints.weighty = 1;
 		
 		constraints.fill = GridBagConstraints.NONE;
 		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
-				                           
-		this.add(plotPolar, constraints);
-		Border bd1 = BorderFactory.createLineBorder(new Color(255, 0, 0));    
-	    plotCart.setBorder(bd1);
-	    plotPolar.setBorder(bd1);
-	    
-	    // third/text cell
-	    constraints.gridx = 0; 
-		constraints.gridy = 2; 
-		constraints.weightx = 1; // these shall be computed!
+		
+		container.add(plotCart12, constraints);
+
+		// 21
+		constraints.gridx = 0;
+		constraints.gridy = 1; 
+		constraints.weightx = 0.01;
 		constraints.weighty = 1;
+		
+		constraints.fill = GridBagConstraints.NONE;
+		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+		
+		container.add(plotCart21, constraints);
+
+		// 22
+		constraints.gridx = 1;
+		constraints.gridy = 1; 
+		constraints.weightx = 0.01;
+		constraints.weighty = 1;
+		
+		constraints.fill = GridBagConstraints.NONE;
+		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+		
+		container.add(plotCart22, constraints);	
+		
+		// 31
+		constraints.gridx = 0;
+		constraints.gridy = 2; 
+		constraints.weightx = 0.01;
+		constraints.weighty = 1;
+		
+		constraints.fill = GridBagConstraints.NONE;
+		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+		
+		container.add(plotCart31, constraints);
+
+		// 32
+		constraints.gridx = 1;
+		constraints.gridy = 2; 
+		constraints.weightx = 0.01;
+		constraints.weighty = 1;
+		
+		constraints.fill = GridBagConstraints.NONE;
+		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+		
+		container.add(plotCart32, constraints);	
+
+		constraints.gridx = 2;
+		constraints.gridy = 0; 
+		constraints.weightx = 1;
+		constraints.weighty = 1;
+		
+		constraints.fill = GridBagConstraints.NONE;
+		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+		
+		container.add(this.plotPolar, constraints);
+		
+		
+		// 23 - 33
+		constraints.gridx = 2;
+		constraints.gridy = 1; 
+		constraints.gridheight = 2;
+		constraints.weightx = 1;
+		constraints.weighty = 1;
+		
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
-		constraints.gridwidth = 2;
-        
-        Border bd2 = BorderFactory.createLineBorder(new Color(255, 0, 0));  
-		this.add(textPanel, constraints);
-		textPanel.setBorder(bd2); 
-	    
-	    // bottom cell, statusbar location
-		constraints.gridx = 0; 
-		constraints.gridy = 3; 
-		constraints.weightx = 1; // these shall be computed!
-		constraints.weighty = 0.1;		
-		constraints.gridwidth = 2; // or as many cols available
 		
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.anchor = GridBagConstraints.LAST_LINE_START;	
+		container.add(this.textPanel, constraints);			
 		
-		this.add(statusbar, constraints);
-		
-		this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-		this.setVisible(true); 
-		
-		this.setMinimumSize(new Dimension(1024, 768));
-		
-		this.setTitle(winTitle);
-		
-		ImageIcon img = new ImageIcon("C:/Users/Petrica Taras/workspace/ground station/src/res/images/iconApp_32x32.png");
-		this.setIconImage(img.getImage());	
-		
+//        // second cell		
+//		constraints.gridx = 1; 
+//		constraints.gridy = 0; 
+//		constraints.weightx = 1; // these shall be computed!
+//		constraints.weighty = 1;
+//		
+//		constraints.fill = GridBagConstraints.NONE;
+//		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+				                           
+//		container.add(plotPolar, constraints);
+//		Border bd1 = BorderFactory.createLineBorder(new Color(255, 0, 0));    
+//	    plotCart.setBorder(bd1);
+//	    plotPolar.setBorder(bd1);
+//	    
+//	    // image cell
+//	    constraints.gridx = 2; 
+//		constraints.gridy = 0; 
+//		constraints.weightx = 1; // these shall be computed!
+//		constraints.weighty = 1;
+//		
+//		constraints.fill = GridBagConstraints.CENTER;
+//		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+//				                           
+//		// this.add(this.img, constraints);
+//		Border bd3 = BorderFactory.createLineBorder(new Color(255, 0, 0));    
+//	    this.img.setBorder(bd3);
+//
+//	    // third/text cell
+//	    constraints.gridx = 0; 
+//		constraints.gridy = 1; 
+//		constraints.weightx = 1; // these shall be computed!
+//		constraints.weighty = 1;
+//		constraints.fill = GridBagConstraints.BOTH;
+//		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+//		constraints.gridwidth = 2;
+//        
+//        Border bd2 = BorderFactory.createLineBorder(new Color(255, 0, 0));  
+//		//this.add(textPanel, constraints);
+//        container.add(this.img, constraints);
+//		textPanel.setBorder(bd2);     		
+
+		return container;
 	}
 	
-	public void addWidget(JPanel obj) {
-		this.add(obj);
-	}
+	// call this only after the menub
+    private Dimension getPlotSize() {
+    	
+    	Dimension result = new Dimension((int) (this.getSize().getWidth()*0.7), 
+    			                         (int )(this.getSize().getHeight()*0.3));
+    	// this.getSize(); //this.getContentPane().getSize(); // this.menubar.getSize();
+        // theFrame.getContentPane().getSize();
+    	return result;
+    }
 }

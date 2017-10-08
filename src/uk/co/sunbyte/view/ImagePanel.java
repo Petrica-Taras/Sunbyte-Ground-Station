@@ -18,8 +18,8 @@ public class ImagePanel extends JPanel {
             this.image = ImageIO.read(new File(fileName));
             this.setPreferredSize(new Dimension(this.image.getWidth(), 
             		                            this.image.getHeight()));
-            System.out.println(this.image.getWidth());
-            System.out.println(this.image.getHeight());
+//            System.out.println(this.image.getWidth());
+//            System.out.println(this.image.getHeight());
         } catch (IOException e) {
     	    System.out.println("Exception occured");
         }

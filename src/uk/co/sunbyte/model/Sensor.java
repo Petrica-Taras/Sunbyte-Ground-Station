@@ -201,7 +201,7 @@ public class Sensor {
     	double[] oneLineDouble = new double[line.length];
     	for(int i = 0; i < line.length; i++) {
     		oneLineDouble[i] = Double.parseDouble(line[i]);
-    	}    	
+    	}    	    	
     	
     	if(this.floatData.size() < this.MAX_DATA) {
     	    this.floatData.add(oneLineDouble); 

@@ -1,48 +1,32 @@
 package uk.co.sunbyte.controller;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.border.Border;
 
 import uk.co.sunbyte.model.EthernetConnection;
-import uk.co.sunbyte.model.ImageReader;
 import uk.co.sunbyte.model.Sensor;
 import uk.co.sunbyte.model.Session;
 import uk.co.sunbyte.view.ImagePanel;
 import uk.co.sunbyte.view.Menubar;
-import uk.co.sunbyte.view.PlotCartesian;
+import uk.co.sunbyte.view.PlotCartesianPanel;
 import uk.co.sunbyte.view.PlotPolar;
 import uk.co.sunbyte.view.StatusBar;
 import uk.co.sunbyte.view.TextPanel;
 
 
+@SuppressWarnings("serial")
 public class Controller extends JFrame {
 //	JButton LeoDiagnose;
 //	JButton EthMDiagnose; 
@@ -61,12 +45,12 @@ public class Controller extends JFrame {
     
     public StatusBar statusbar;	
     
-    public PlotCartesian plotCart11;
-    public PlotCartesian plotCart12;
-    public PlotCartesian plotCart21;
-    public PlotCartesian plotCart22;
-    public PlotCartesian plotCart31;
-    public PlotCartesian plotCart32;
+    public PlotCartesianPanel plotCart11;
+    public PlotCartesianPanel plotCart12;
+    public PlotCartesianPanel plotCart21;
+    public PlotCartesianPanel plotCart22;
+    public PlotCartesianPanel plotCart31;
+    public PlotCartesianPanel plotCart32;
     
     public PlotPolar plotPolar;
     
@@ -129,8 +113,8 @@ public class Controller extends JFrame {
 			
 		
     	sensor11 = new Sensor("Plot 11",
-    	         new String[]{"Time", "CPU"}, 
-    	            "80.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
+    	         new String[]{"Time", "CPU", "CPU1"}, 
+    	            "80.0 20.0 32.1\n95.0 22.0 89.0\n101.0 22.1 90.0\n200.0 40.0 99.1\n350.0 75.0 45.0\n500.0 100.0 33.0\n750 215 120.09");
     	sensor12 = new Sensor("Plot 12",
    	         new String[]{"Time", "CPU"}, 
    	            "40.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
@@ -170,22 +154,22 @@ public class Controller extends JFrame {
 				                          (int) ((this.height-28)*0.3));
 		Dimension restPlotDim = new Dimension((int) (this.width*0.30),
 				                              (int) (this.height-28));
-		this.plotCart11 = new PlotCartesian(sensor11,
+		this.plotCart11 = new PlotCartesianPanel(sensor11,
                                           plotDim,
                                           new Dimension(5, 4));
-		this.plotCart12 = new PlotCartesian(sensor12,
+		this.plotCart12 = new PlotCartesianPanel(sensor12,
                 plotDim,
                 new Dimension(5, 4));
-		this.plotCart21 = new PlotCartesian(sensor21,
+		this.plotCart21 = new PlotCartesianPanel(sensor21,
                 plotDim,
                 new Dimension(5, 4));
-		this.plotCart22 = new PlotCartesian(sensor22,
+		this.plotCart22 = new PlotCartesianPanel(sensor22,
                 plotDim,
                 new Dimension(5, 4));
-		this.plotCart31 = new PlotCartesian(sensor31,
+		this.plotCart31 = new PlotCartesianPanel(sensor31,
                 plotDim,
                 new Dimension(5, 4));
-		this.plotCart32 = new PlotCartesian(sensor32,
+		this.plotCart32 = new PlotCartesianPanel(sensor32,
                 plotDim,
                 new Dimension(5, 4));		
 //		this.plotCart = new PlotCartesian(sensor12,

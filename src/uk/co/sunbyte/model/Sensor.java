@@ -9,22 +9,20 @@ import java.util.ArrayList;
  * 
  ********************************************************* 
  * Holds data from the sensors.
- * Can accomodate sensors with multiple outputs (i.e. the
+ * Can accommodate sensors with multiple outputs (i.e. the
  * power sensors) but also to group same type of sensors
  * in a single data structure, convenient for later use
  * with plot classes (example: temperature sensors) 
  * Can conveniently flush the sensor if MAX_DATA entries 
  * are reached, in order to show only the last MAX_DATA
  * collected entries 
- * TODO - make stringData an array (correlated with floatData)
- * in order to easily remove data from the beginning!
  * 
  * ******************************************************** 
- * ... uh and actually ... now I notice this ... this is an
+ * "... uh and actually ... now I notice this ... this is an
  * alcoholic lager beer, isn't it John? ... 10% ... blimey 
- * ... that's quite a lot isn't it John? 
- * Yes Hugh, it's the most alcohol per mililiter, at the
- * lowest cost in this corner shop 
+ * ... that's quite a lot isn't it John?" 
+ * "Yes Hugh, it's the most alcohol per mililiter, at the
+ * lowest cost in this corner shop" 
  * 
  * ******************************************************** 
  * 
@@ -102,6 +100,10 @@ public class Sensor {
     
     public ArrayList<String> getDataNames() {
     	return this.dataNames;
+    }
+    
+    public ArrayList<String> getStringData() {
+    	return this.stringDataEntries;
     }
     
     public String getAbcissae() {
@@ -185,6 +187,12 @@ public class Sensor {
      * Splits string data (assuming it comes into data columns)
      * does assume one row at a time. 
      * does not do any safety checks either, damn it!
+     * 
+     * @param oneLineString is a string in format 
+     * "time data1 data 2 ...data N\n" representing one
+     * measurement by a (set of) sensor(s)
+     * 
+     * TODO: should return the number of items (for safety checks)
      * 
      * */
     private void stringToDataOneField(String oneLineString) {
@@ -281,8 +289,25 @@ public class Sensor {
     	
     	return new Sensor(newSensorName, newDataNames, newDataEntries.toString());
     }
-    
+    /**
+     * Notifies the Session object about sensor data being received.
+     * This info goes into the main log, via the Session object. 
+     *  
+     * @param session
+     * @throws IOException
+     */
     public void writeToLog(Session session) throws IOException {
-    	session.write(this.toString()); 
+    	session.write(this.sensorName + " data was received\n");
+    	// session.write(this.toString()); 
+    }
+    
+    /**
+     * 
+     * 
+     * @param session
+     * @throws IOException
+     */
+    public void writeToSensorLog(Session session) throws IOException {
+    	session.writeSensorData(this); 
     }
 }

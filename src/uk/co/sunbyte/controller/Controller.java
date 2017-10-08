@@ -12,7 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.File;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -149,6 +149,8 @@ public class Controller extends JFrame {
   	         new String[]{"Time", "CPU"}, 
   	            "40.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
 
+      	this.session.writeSensorData(sensor11);
+      	this.session.writeSensorData(sensor12);
       	
     	// start the dancing
     	this.settings = new HashMap<String, String>();

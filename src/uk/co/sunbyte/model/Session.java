@@ -7,7 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -43,9 +45,9 @@ public class Session {
 	private String sessionLogFilename;
 	private BufferedWriter sessionLog;
 	
-	private AppPreferences appPref;
+	private AppPreferences appPref; // persistence for all app settings
 	
-	private String lastSeen;
+	private String lastSeen; // to be interogated by sensors and event managers
 	
     private Session () throws IOException, InterruptedException {
     	appPref = new AppPreferences(); 
@@ -58,7 +60,7 @@ public class Session {
     	// creates folder
     	Path currentRelativePath = Paths.get("");
     	localPathFolder = currentRelativePath.toAbsolutePath().toString();
-    	//System.out.println(localPathFolder);
+    	
     	// Path path = Paths.get(localPath+"\\"+uuid.toString());
     	sessionPathFolder = localPathFolder+"\\"+this.uuid;
     	
@@ -89,7 +91,11 @@ public class Session {
 	}
 
 	/**
-	 * 
+	 * Tests if the session has already created the general
+	 * unique folder, basically required to avoid clashes with 
+	 * previously created folders as the uniqueness depends on 
+	 * time and date
+	 *  
 	 * @return true if {@link Session#sessionPathFolder} already exists 
 	 */	
 	private boolean checkItExistOnDisk() {
@@ -100,6 +106,22 @@ public class Session {
 		return false;
 	}
 
+	/**
+	 * Tests if the session has already created a fileName file into
+	 * the session folder. Intended for uses with repeated writings to
+	 * the same file for sensors in order to avoid writing the sensor
+	 * headers multiple times
+	 *  
+	 * @return true if fileName already exists 
+	 */	
+	private boolean checkItExistOnDisk(String fileName) {
+		Path path = Paths.get(this.sessionPathFolder + "\\" + fileName);
+		if(Files.exists(path)) {
+			return true;
+		}
+		return false;
+	}
+	
     public String getLastSeen() {
     	SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     	return dateFormat.format(new Date());
@@ -108,5 +130,27 @@ public class Session {
     public static synchronized Session getInstance() throws IOException, InterruptedException {
         if (INSTANCE == null) INSTANCE = new Session();
         return INSTANCE;
+    }
+    
+    public void writeSensorData(Sensor sensor) throws IOException {
+    	// form file name:
+    	String sensorLogFileName = sensor.getName() + this.uuid + ".csv";
+    	BufferedWriter sensorFile = new BufferedWriter(new FileWriter(sessionPathFolder +"\\"+ sensorLogFileName, true));
+    	
+    	if(!this.checkItExistOnDisk(sensorLogFileName)) {
+    		sensorFile.write(sensor.getName() + "\n\n");
+    		ArrayList<String> names = sensor.getDataNames();
+    		for(String s: names) {
+    		    sensorFile.write(s + " ");
+    		}
+    		sensorFile.write("\n");
+    	}
+    	
+    	ArrayList<String> data = sensor.getStringData();
+    	for(String s: data) {
+    	    sensorFile.write(s + "\n");
+    	}
+    	
+    	sensorFile.close(); 
     }
 }

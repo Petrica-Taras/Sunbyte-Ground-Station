@@ -12,8 +12,10 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
 
 import uk.co.sunbyte.model.EthernetConnection;
 import uk.co.sunbyte.model.Sensor;
@@ -54,7 +56,7 @@ public class Controller extends JFrame {
     
     public PlotPolar plotPolar;
     
-    public ImagePanel img; 
+    public ImagePanel imgTrack; 
     
     public TextPanel textPanel; 
     /**
@@ -92,6 +94,7 @@ public class Controller extends JFrame {
     private Sensor sensor22;
     private Sensor sensor31;    
     private Sensor sensor32;
+	private ImagePanel imgFocus;
     
     public Controller() throws IOException, InterruptedException {
     	// first of all this as it contains settings for the rest of the app!
@@ -104,8 +107,11 @@ public class Controller extends JFrame {
 		
         this.statusbar.setLastMeasurement(session.getLastSeen());
         
-		
-		imagingPerspective  = new JPanel();
+		// this.img = new ImagePanel("hot_air_balloon_kidnapping.png");
+		this.imgTrack = new ImagePanel(session.getLocalPathFolder()+"\\test.png");
+		this.imgFocus = new ImagePanel(session.getLocalPathFolder()+"\\hot_air_balloon_kidnapping.png");
+        
+		imagingPerspective  = this.iniImagingPerspectiveUI();
 		settingsPerspective = new JPanel(); 
 		
 		mainBL = new BorderLayout();
@@ -144,8 +150,6 @@ public class Controller extends JFrame {
 		
 		ethConn = new EthernetConnection("172.16.18.131", 9999);
 		// ethConn.pushData("testing"); 
-		// this.img = new ImagePanel("hot_air_balloon_kidnapping.png");
-		this.img = new ImagePanel("test.png");
 		
 		// Dimension plot = this.getPlotSize();
 		// System.out.println(plot);
@@ -197,7 +201,7 @@ public class Controller extends JFrame {
         defaultPerspective  = this.initMainPerspectiveUI(); // new JPanel();
         
 		this.main.addTab("Sensors", this.defaultPerspective);
-		this.main.addTab("Imaging", imagingPerspective);
+		this.main.addTab("Imaging", this.imagingPerspective);
 		this.main.addTab("Settings", settingsPerspective);		
 		
 		this.add(this.main, BorderLayout.CENTER);
@@ -278,6 +282,48 @@ public class Controller extends JFrame {
 //		MainWin.addWidget(plot);   		
       
 
+    }
+    
+    private JPanel iniImagingPerspectiveUI() {
+    	JPanel container = new JPanel(); 
+    	JPanel trackPanel = new JPanel(new BorderLayout());
+    	JPanel focusPanel = new JPanel(new BorderLayout());
+    	
+    	JLabel trackTitle = new JLabel("Tracking Image", SwingConstants.CENTER);
+    	JLabel focusTitle = new JLabel("Focusing Image", SwingConstants.CENTER);
+    	
+		GridBagLayout layout = new GridBagLayout();
+		GridBagConstraints constraints = new GridBagConstraints();
+		container.setLayout(layout);
+		
+		trackPanel.add(trackTitle, BorderLayout.NORTH);
+		trackPanel.add(this.imgTrack, BorderLayout.CENTER);
+		
+		focusPanel.add(focusTitle, BorderLayout.NORTH);
+		focusPanel.add(this.imgFocus, BorderLayout.CENTER);
+		
+		// two columns cells		
+		constraints.gridx = 0;
+		constraints.gridy = 0; 
+		constraints.weightx = 1;
+		constraints.weighty = 1;
+		
+		constraints.fill = GridBagConstraints.BOTH;
+		constraints.anchor = GridBagConstraints.CENTER;
+		
+		container.add(trackPanel, constraints);
+
+		constraints.gridx = 1;
+		constraints.gridy = 0; 
+		constraints.weightx = 1;
+		constraints.weighty = 1;
+		
+		constraints.fill = GridBagConstraints.BOTH;
+		constraints.anchor = GridBagConstraints.CENTER;
+		
+		container.add(focusPanel, constraints);		
+		
+		return container;
     }
     
 	private JPanel initMainPerspectiveUI() {

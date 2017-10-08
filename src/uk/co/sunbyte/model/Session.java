@@ -41,7 +41,15 @@ public class Session {
 	// with some method to get rid off "\"	
 	private String localPathFolder;
 	
+	public String getLocalPathFolder() {
+		return localPathFolder;
+	}
+
 	private String sessionPathFolder; 
+	public String getSessionPathFolder() {
+		return sessionPathFolder;
+	}
+
 	private String sessionLogFilename;
 	private BufferedWriter sessionLog;
 	

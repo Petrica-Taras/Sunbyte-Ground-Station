@@ -3,6 +3,8 @@ package uk.co.sunbyte.model;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import uk.co.sunbyte.controller.ConnectionListener;
+
 /**
  * @author Petrica Taras
  * @version 1.0
@@ -27,7 +29,7 @@ import java.util.ArrayList;
  * ******************************************************** 
  * 
  */
-public class Sensor {
+public class Sensor implements ConnectionListener {
 	private String sensorName; 
     private ArrayList<String> dataNames;
     /* sensorName: to store the sensor/sensor batch name
@@ -44,6 +46,7 @@ public class Sensor {
     
     // flags;
     private boolean isInitialized = false;
+    private boolean isEmpty = true;
     
     public Sensor(String sensorName) {
     	this.sensorName = sensorName;
@@ -310,4 +313,10 @@ public class Sensor {
     public void writeToSensorLog(Session session) throws IOException {
     	session.writeSensorData(this); 
     }
+
+	@Override
+	public void notifyDestination(String text) {
+		this.add(text);
+		
+	}
 }

@@ -7,8 +7,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-public class TextPanel extends JPanel {
-    private JTextArea textArea; 
+import uk.co.sunbyte.controller.ConnectionListener;
+
+public class TextPanel extends JPanel implements ConnectionListener {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6978478625611614861L;
+	private JTextArea textArea; 
     
     public TextPanel(Dimension d) {
     	this.textArea = new JTextArea(); 
@@ -21,6 +27,12 @@ public class TextPanel extends JPanel {
     public void appendText(String text) {
         textArea.append(text);
     }
+
+	@Override
+	public synchronized void notifyDestination(String text) {
+		this.appendText(text);
+		
+	}
 
     
 }

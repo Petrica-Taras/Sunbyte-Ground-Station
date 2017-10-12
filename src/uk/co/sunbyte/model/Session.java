@@ -55,6 +55,8 @@ public class Session {
 	
 	private AppPreferences appPref; // persistence for all app settings
 	
+	ExperimentStatus expStatus;
+	
 	private String lastSeen; // to be interogated by sensors and event managers
 	
     private Session () throws IOException, InterruptedException {

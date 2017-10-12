@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
+import uk.co.sunbyte.controller.ConnectionListener;
 import uk.co.sunbyte.model.Sensor;
 
 /**
@@ -35,7 +36,7 @@ import uk.co.sunbyte.model.Sensor;
  * 
  */
 @SuppressWarnings("serial")
-public class PlotCartesianPanel extends JPanel{	
+public class PlotCartesianPanel extends JPanel implements ConnectionListener {	
 	private JLabel[] xTicks;
 	private JLabel[] yTicks;
 	private String[] legend; 
@@ -50,13 +51,21 @@ public class PlotCartesianPanel extends JPanel{
 	
 	int[] drawableAreaSizes; // wtf is this?
 	
+	Dimension size;
+	Dimension ticks;
+	Dimension dimTitle, dimXLabel; 
+	
+	double[][] data;
+	
 	public PlotCartesianPanel(Sensor sensor, Dimension size, Dimension ticks) {
 		this(sensor.getAbcissae(), sensor.getName(), size, ticks, PlotCartesianPanel.sensorToDouble(sensor)); // ugly fix
 	}
 	
 	
     public PlotCartesianPanel(String xLabelText, String titleText, Dimension size, Dimension ticks, double[][] data) {
-    	
+    	this.data = data.clone(); 
+    	this.size = size; 
+    	this.ticks = ticks;
     	this.setBackground(new Color(255, 255, 255));
     	this.setLayout(new BorderLayout());
     	
@@ -80,8 +89,8 @@ public class PlotCartesianPanel extends JPanel{
          * so we can set the drawableArea height, based
          * on available space
          */
-    	Dimension dimTitle = title.getPreferredSize();  
-    	Dimension dimXLabel = xLabel.getPreferredSize();
+    	this.dimTitle = title.getPreferredSize();  
+    	this.dimXLabel = xLabel.getPreferredSize();
     	
     	drawableArea = new PlotCartesianArea(new Dimension(size.width, 
                                              size.height-dimTitle.height-dimXLabel.height-30), 
@@ -117,4 +126,30 @@ public class PlotCartesianPanel extends JPanel{
 		
 		return data; 
     }
+
+
+	@Override
+	public void notifyDestination(String text) {
+		double[] oneLineDouble = new double[2];
+		String[] line = text.split(" ");
+    	for(int i = 0; i < line.length; i++) {
+    		oneLineDouble[i] = Double.parseDouble(line[i]);
+    	}    	
+    	
+    	double[][] local = new double[this.data.length+1][this.data[0].length]; 
+    	for(int i = 0; i < this.data.length; i++) {
+    		for(int j = 0; j < this.data[0].length; j++) {
+    			local[i][j] = this.data[i][j];
+    		}
+    	}
+    	local[this.data.length][0] = oneLineDouble[0];
+    	local[this.data.length][1] = oneLineDouble[1];
+    	
+//		this.drawableArea = new PlotCartesianArea(new Dimension(size.width, 
+//                                             size.height-dimTitle.height-dimXLabel.height-30), 
+//    			                             ticks, 
+//    			                             local);
+		this.drawableArea.refresh(local);
+		
+	}
 }

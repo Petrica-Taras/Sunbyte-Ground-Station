@@ -1,5 +1,7 @@
 package uk.co.sunbyte.model;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 /**
@@ -63,4 +65,12 @@ public class AppPreferences {
     public int getGroundStationServerPort() {
 		return prefs.getInt("Ground Station Port", 9999);
 	}	
+    
+    public Map<String, String> getFullHostList() {
+    	Map<String, String> hosts = new HashMap<String, String>();
+    	hosts.put(this.getGroundStationName(), this.getGroundStationIP());
+    	hosts.put("Main Controller IP", this.getMainControllerIP());
+    	
+    	return hosts;
+    }
 }

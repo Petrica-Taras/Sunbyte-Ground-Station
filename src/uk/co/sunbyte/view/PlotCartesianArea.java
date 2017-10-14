@@ -64,19 +64,18 @@ public class PlotCartesianArea extends JPanel{
     	
     	this.xTicks = ticks.width;
     	this.yTicks = ticks.height;
-    	
-    	this.xInterval = (data[data.length-1][0]-data[0][0])/(this.xTicks-1); 	
     }
 	
 	protected void paintComponent(Graphics g) {
         super.paintComponent(g);       
         // g.setColor(Color.BLUE);
-        
-        // this.double2int(data, this.getWidth(), this.getHeight());
-
-   	    double[] min = getMin(data);
-   	    double[] max = getMax(data);        
-        
+   	    int e = g.getFontMetrics().getHeight();
+   	    
+        if(this.data != null) {
+   	        double[] min = getMin(data);
+   	        double[] max = getMax(data); 
+   	    
+    	this.xInterval = (data[data.length-1][0]-data[0][0])/(this.xTicks-1); 
    	    this.yInterval = (max[1]-min[1])/(this.yTicks-1);
    	    
    	    int a = g.getFontMetrics().stringWidth(String.valueOf(min[0]));
@@ -86,9 +85,7 @@ public class PlotCartesianArea extends JPanel{
 
    	    int c = g.getFontMetrics().stringWidth(String.valueOf(min[1]));
    	    int d = g.getFontMetrics().stringWidth(String.valueOf(max[1]));
-   	      	    
-   	    int e = g.getFontMetrics().getHeight();
-   	    
+   	     	    
    	    int yLabelSize = (c>d)?c:d;
    	    
    	    this.plotReference[0] = yLabelSize + 20;
@@ -104,7 +101,6 @@ public class PlotCartesianArea extends JPanel{
     			        this.plotSize[1]);   	  
     	
     	// draw xlabels
-    	
     	int[] minMaxX = new int[] {this.plotReference[0] - xLabelSize/2, 
     			                  this.plotReference[0] + this.plotSize[0] - xLabelSize/2};
         int[] minMaxY = new int[] {this.plotReference[1] - yLabelSize/2, 
@@ -119,7 +115,7 @@ public class PlotCartesianArea extends JPanel{
     	}
     	
     	for(int i = 0; i < this.yTicks; i++) {
-    		String s = String.valueOf(min[1]+this.yInterval*i);
+    		String s = String.format("%.2f", min[1]+this.yInterval*i); // String.valueOf(min[1]+this.yInterval*i);
     		g.drawString(s, 
     				     this.plotReference[0] - 5 - g.getFontMetrics().stringWidth(s),
     				     minMaxY[1]-this.plotSize[1]/(this.yTicks-1)*i);
@@ -161,7 +157,13 @@ public class PlotCartesianArea extends JPanel{
         			   i*this.getHeight()/(this.yTicks-1), 
         			   8, 
         			   i*this.getHeight()/(this.yTicks-1));
-        }        
+        } 
+        }
+		else {
+			String s = "no input data available!";
+			int c = g.getFontMetrics().stringWidth(s);
+			g.drawString(s, this.getWidth()/2 - c, this.getHeight()/2+e);
+		}
 	}
 
 	/*
@@ -183,9 +185,9 @@ public class PlotCartesianArea extends JPanel{
      /*
       * should only keep at most max(width, height) points
       */        
-     private void double2int(double[][] data, int width, int height) { 
-    	 double[] min = getMin(data);
-    	 double[] max = getMax(data);
+     private void double2int(double[][] input, int width, int height) { 
+    	 double[] min = getMin(input);
+    	 double[] max = getMax(input);
     	 
     	 double minX = min[0];
     	 double maxX = max[0];
@@ -196,12 +198,12 @@ public class PlotCartesianArea extends JPanel{
     	 double diffX = maxX - minX;
     	 double diffY = maxY - minY;
 
-    	 for(int i = 0; i < data.length; i++) {
+    	 for(int i = 0; i < input.length; i++) {
     		 // deal with x axis
-    		 this.locations[i][0] = (int) (((data[i][0]-minX)/diffX)*width);    	
+    		 this.locations[i][0] = (int) (((input[i][0]-minX)/diffX)*width);    	
     		 // then y axis
-    		 for(int j = 1; j < data[0].length; j++) {
-    		     this.locations[i][j] = height-(int) (((data[i][j]-minY)/diffY)*height);
+    		 for(int j = 1; j < input[0].length; j++) {
+    		     this.locations[i][j] = height-(int) (((input[i][j]-minY)/diffY)*height);
     	     }    		 
     	 }
     }
@@ -310,6 +312,8 @@ public class PlotCartesianArea extends JPanel{
     }
     
     public void refresh(double[][] data) {
+    	this.data = data; 
+    	this.locations = new int[data.length][data[0].length];
     	this.double2int(data, this.getWidth(), this.getHeight());
     	this.repaint();
     }

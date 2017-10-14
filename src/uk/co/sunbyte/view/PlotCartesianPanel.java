@@ -130,8 +130,9 @@ public class PlotCartesianPanel extends JPanel implements ConnectionListener {
 
 	@Override
 	public void notifyDestination(String text) {
-		double[] oneLineDouble = new double[2];
-		String[] line = text.split(" ");
+		String[] line = text.split(" ");		
+		double[] oneLineDouble = new double[line.length];
+
     	for(int i = 0; i < line.length; i++) {
     		oneLineDouble[i] = Double.parseDouble(line[i]);
     	}    	
@@ -142,8 +143,10 @@ public class PlotCartesianPanel extends JPanel implements ConnectionListener {
     			local[i][j] = this.data[i][j];
     		}
     	}
-    	local[this.data.length][0] = oneLineDouble[0];
-    	local[this.data.length][1] = oneLineDouble[1];
+    	for(int i = 0; i < this.data[0].length; i++) {
+    	    local[this.data.length][i] = oneLineDouble[i];
+    	}
+  
     	
 //		this.drawableArea = new PlotCartesianArea(new Dimension(size.width, 
 //                                             size.height-dimTitle.height-dimXLabel.height-30), 

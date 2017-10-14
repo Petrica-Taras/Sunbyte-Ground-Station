@@ -3,11 +3,9 @@ package uk.co.sunbyte.model;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import uk.co.sunbyte.controller.ConnectionListener;
-
 /**
  * @author Petrica Taras
- * @version 1.0
+ * @version 1.1
  * 
  ********************************************************* 
  * Holds data from the sensors.
@@ -29,49 +27,54 @@ import uk.co.sunbyte.controller.ConnectionListener;
  * ******************************************************** 
  * 
  */
-public class Sensor implements ConnectionListener {
-	private String sensorName; 
-    private ArrayList<String> dataNames;
+public class Sensor {
     /* sensorName: to store the sensor/sensor batch name
-     * floatData: for storing actual data in double format
+     * realData: for storing actual data in double format
      * stringDataEntries: for storing actual data in String format
      * format (column headers): time, data1, data2 and so on
      * maximum data available is MAX_DATA - after this, data at 
      * the beginning of floatData & stringDataEntries is flushed out
      * 
-     * */
-    private int MAX_DATA = 200;
-    private ArrayList<double[]> floatData; 
+     * */	
+	private String sensorName; 
+    private ArrayList<String> dataNames;
+    private final int MAX_DATA = 200;
+    private ArrayList<double[]> realData; 
     private ArrayList<String> stringDataEntries;
     
     // flags;
-    private boolean isInitialized = false;
     private boolean isEmpty = true;
     
+    public Sensor() {
+    	this.dataNames = new ArrayList<String>();
+    	this.realData = new ArrayList<double[]>(); 
+    	this.stringDataEntries = new ArrayList<String>();    	
+    }
+    
     public Sensor(String sensorName) {
+    	this(); 
     	this.sensorName = sensorName;
     }
     
     public Sensor(String sensorName, String[] dataNames) {
     	this(sensorName);
-    	this.dataNames = new ArrayList<String>(); 
 
     	for(String s: dataNames) {
     		this.dataNames.add(s);    		
     	}
         
-        floatData = new ArrayList<double[]>(); 
-    	this.isInitialized = true;        
+        realData = new ArrayList<double[]>();        
     }
     
     public Sensor(String sensorName, String[] dataNames, String data) {
     	this(sensorName, dataNames);
-    	this.stringDataEntries = new ArrayList<String>();
     	
     	String[] lines = data.split("\n");
     	for(String s: lines) {
     	    this.stringToDataOneField(s);
     	}
+    	
+    	this.isEmpty = false;
     }    
     
     /**
@@ -79,7 +82,7 @@ public class Sensor implements ConnectionListener {
      * @return true if the proper constructors have been used 
      */
     public boolean isEmpty() {
-    	return !this.isInitialized;
+    	return this.isEmpty;
     }
     
     public String toString() {
@@ -114,15 +117,16 @@ public class Sensor implements ConnectionListener {
     }
     
     public ArrayList<double[]> getFloatData() {
-    	return floatData;
+    	return realData;
     }
 
     public ArrayList<String> flushContent() {
-    	this.isInitialized = false;
     	// ArrayList<String> auxData = (ArrayList<String>) this.stringDataEntries.clone();
     	ArrayList<String> auxData = new ArrayList<String>(this.stringDataEntries);
     	this.stringDataEntries.clear();
-    	this.floatData.clear(); // make sure it is empty!
+    	this.realData.clear(); // make sure it is empty!
+
+    	this.isEmpty = true;    	
     	
     	return auxData;    	
     }
@@ -135,19 +139,22 @@ public class Sensor implements ConnectionListener {
      */
     public void add(String newData) {
     	if(this.isEmpty()) {
-    		this.stringDataEntries = new ArrayList<String>(); 
-    		this.isInitialized = true;
+    		this.isEmpty = false;
     	}
     	
-    	stringDataEntries.add("\n"+newData);
+    	if((this.realData.size() + 1) > this.MAX_DATA) {
+    		this.realData.remove(0); 
+    		this.stringDataEntries.remove(0);
+    	}
+    	
+    	this.stringDataEntries.add("\n"+newData);
     	this.stringToDataOneField(newData);
     }
     
     @SuppressWarnings("unused")
 	private void add(double[] newData) {
-    	if(this.isEmpty()) {
-    		this.stringDataEntries = new ArrayList<String>();  
-    		this.isInitialized = true;
+    	if(this.isEmpty()) { 
+    		this.isEmpty = true;
     	}
     	
     	int n = newData.length; 
@@ -158,17 +165,29 @@ public class Sensor implements ConnectionListener {
     		auxData.append(newData[i]);
 			auxData.append(" ");
     	}
+    	
+    	if((this.realData.size() + 1) > this.MAX_DATA) {
+    		this.realData.remove(0); 
+    		this.stringDataEntries.remove(0);
+    	}
+    	
     	this.stringToDataOneField(auxData.toString());
     }
     
     public void add(double[][] newData) {
-    	if(this.isEmpty()) {
-    		this.stringDataEntries = new ArrayList<String>(); 
-    		this.isInitialized = true;
+    	if(this.isEmpty()) { 
+    		this.isEmpty = false;
     	}
     	
     	int rows = newData.length;
     	int cols = newData[0].length;
+    	
+    	if((this.realData.size() + rows) > this.MAX_DATA) {
+    		for(int i = 0; i < rows; i++) {
+    		    this.realData.remove(0); 
+    		    this.stringDataEntries.remove(0);
+    		}
+    	}
     	
     	StringBuffer auxData = new StringBuffer(); 
     	
@@ -180,6 +199,14 @@ public class Sensor implements ConnectionListener {
     		this.stringToDataOneField(auxData.toString());
     		auxData.delete(0, auxData.length());
     	}  	
+    }
+    
+    public void addStringBatch(String data) {
+    	String[] lines = data.split("\n");
+    	for(String s: lines) {
+    		this.stringDataEntries.add("\n"+s);
+    	    this.stringToDataOneField(s);
+    	}
     }
     
     public void add(ArrayList<double[]> newData) {
@@ -204,20 +231,14 @@ public class Sensor implements ConnectionListener {
     	double[] oneLineDouble = new double[line.length];
     	for(int i = 0; i < line.length; i++) {
     		oneLineDouble[i] = Double.parseDouble(line[i]);
-    	}    	    	
-    	
-    	if(this.floatData.size() < this.MAX_DATA) {
-    	    this.floatData.add(oneLineDouble); 
-    	} else {
-    		this.floatData.remove(0); 
-    		this.floatData.add(oneLineDouble);
     	}
     	
-    	this.stringDataEntries.add(oneLineString);
+	    this.realData.add(oneLineDouble); 
+    	this.stringDataEntries.add(oneLineString);    	
     }
     
     public int getFieldsSize() {
-    	return this.floatData.size();
+    	return this.realData.size();
     }
     
     public int getColumnSize() {
@@ -245,7 +266,7 @@ public class Sensor implements ConnectionListener {
     				newDataNames[j] = index[j];
     				// build auxData now
     				for(int k = 0; k < this.getFieldsSize(); k++) {
-    					auxData[k][counter] = this.floatData.get(k)[j];
+    					auxData[k][counter] = this.realData.get(k)[j];
     				}
     				counter++;  
     			}
@@ -276,7 +297,7 @@ public class Sensor implements ConnectionListener {
     				newDataNames[j] = index[j];
     				// build auxData now
     				for(int k = 0; k < this.getFieldsSize(); k++) {
-    					auxData[k][counter] = this.floatData.get(k)[j];
+    					auxData[k][counter] = this.realData.get(k)[j];
     				}
     				counter++;  
     			}
@@ -313,10 +334,4 @@ public class Sensor implements ConnectionListener {
     public void writeToSensorLog(Session session) throws IOException {
     	session.writeSensorData(this); 
     }
-
-	@Override
-	public void notifyDestination(String text) {
-		this.add(text);
-		
-	}
 }

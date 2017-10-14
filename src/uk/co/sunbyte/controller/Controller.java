@@ -90,12 +90,12 @@ public class Controller extends JFrame {
 
 	public Map<String, String> settings; // centralises all of the settings
 
-	private Sensor sensor11;
-	private Sensor sensor12;
-	private Sensor sensor21;
-	private Sensor sensor22;
-	private Sensor sensor31;
-	private Sensor sensor32;
+	private Sensor dataChannel_1;
+	private Sensor dataChannel_2;
+	private Sensor dataChannel_3;
+	private Sensor dataChannel_4;
+	private Sensor dataChannel_5;
+	private Sensor dataChannel_6;
 	private ImagePanel imgFocus;
 
 	public Controller() throws IOException, InterruptedException {
@@ -119,23 +119,10 @@ public class Controller extends JFrame {
 		mainBL = new BorderLayout();
 		this.setLayout(this.mainBL);
 
-		sensor11 = new Sensor("Plot 11", new String[] { "Time", "CPU", "CPU1" },
-				"80.0 20.0 32.1\n95.0 22.0 89.0\n101.0 22.1 90.0\n200.0 40.0 99.1\n350.0 75.0 45.0\n500.0 100.0 33.0\n750 215 120.09");
-		sensor12 = new Sensor("Plot 12", new String[] { "Time", "CPU" },
-				"40.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
-
-		sensor21 = new Sensor("Plot 21", new String[] { "Time", "CPU" },
-				"80.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
-		sensor22 = new Sensor("Plot 22", new String[] { "Time", "CPU" },
-				"40.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
-
-		sensor31 = new Sensor("Plot 31", new String[] { "Time", "CPU" },
-				"80.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
-		sensor32 = new Sensor("Plot 32", new String[] { "Time", "CPU" },
-				"40.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
-
-		this.session.writeSensorData(sensor11);
-		this.session.writeSensorData(sensor12);
+		this.initDataChannels();
+		
+		this.session.writeSensorData(dataChannel_1);
+		this.session.writeSensorData(dataChannel_2);
 
 		// start the dancing
 		this.settings = new HashMap<String, String>();
@@ -154,15 +141,14 @@ public class Controller extends JFrame {
 
 		Dimension plotDim = new Dimension((int) (this.width * 0.35), (int) ((this.height - 28) * 0.3));
 		Dimension restPlotDim = new Dimension((int) (this.width * 0.30), (int) (this.height - 28));
-		this.plotChannel_1 = new PlotCartesianPanel(sensor11, plotDim, new Dimension(5, 4));
-		this.plotChannel_2 = new PlotCartesianPanel(sensor12, plotDim, new Dimension(5, 4));
-		this.plotChannel_3 = new PlotCartesianPanel(sensor21, plotDim, new Dimension(5, 4));
-		this.plotChannel_4 = new PlotCartesianPanel(sensor22, plotDim, new Dimension(5, 4));
-		this.plotChannel_5 = new PlotCartesianPanel(sensor31, plotDim, new Dimension(5, 4));
-		this.plotChannel_6 = new PlotCartesianPanel(sensor32, plotDim, new Dimension(5, 4));
-		// this.plotCart = new PlotCartesian(sensor12,
-		// new Dimension(900, 500),
-		// new Dimension(5, 4));
+		this.plotChannel_1 = new PlotCartesianPanel(dataChannel_1, plotDim, new Dimension(5, 4));
+		this.plotChannel_2 = new PlotCartesianPanel(dataChannel_2, plotDim, new Dimension(5, 4));
+		this.plotChannel_3 = new PlotCartesianPanel(dataChannel_3, plotDim, new Dimension(5, 4));
+		this.plotChannel_4 = new PlotCartesianPanel(dataChannel_4, plotDim, new Dimension(5, 4));
+		this.plotChannel_5 = new PlotCartesianPanel(dataChannel_5, plotDim, new Dimension(5, 4));
+		this.plotChannel_6 = new PlotCartesianPanel(dataChannel_6, plotDim, new Dimension(5, 4));
+		
+		this.plotChannel_1.notifyDestination("1000.0 120.0 32.1 19.5 2.0");
 
 		this.plotPolar = new PlotPolar("Orientation",
 				new Dimension((int) plotDim.getHeight(), (int) plotDim.getHeight()), new Dimension(5, 36),
@@ -320,6 +306,30 @@ public class Controller extends JFrame {
 		// }
 		// });
 
+	}
+
+	private void initDataChannels() {
+		this.dataChannel_1 = new Sensor("Temperature", 
+				             new String[] { "Time", 
+				            		        "Outside", 
+				            		        "Box",
+				            		        "Azimuth M.", 
+				            		        "PC"});
+		
+		String s1 = new String("80.0 20.0 32.1 19.5 2.0\n95.0 22.0 89.0 22.5 1.02\n101.0 22.1 90.0 33.0 6.9\n200.0 40.0 99.1 66.2 11.2\n350.0 75.0 45.0 69.02 8.91\n500.0 100.0 33.0 72.0 12\n750 215 120.09 100.2 38"); 
+		this.dataChannel_1.addStringBatch(s1);
+		this.dataChannel_2 = new Sensor("Plot 12", new String[] { "Time", "CPU" },
+				"40.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
+
+		this.dataChannel_3 = new Sensor("Plot 21", new String[] { "Time", "CPU" },
+				"80.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
+		this.dataChannel_4 = new Sensor("Plot 22", new String[] { "Time", "CPU" },
+				"40.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
+
+		this.dataChannel_5 = new Sensor("Plot 31", new String[] { "Time", "CPU" },
+				"80.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");
+		this.dataChannel_6 = new Sensor("Plot 32", new String[] { "Time", "CPU" },
+				"40.0 20.0\n95.0 22.0\n101.0 22.1\n200.0 40.0\n350.0 75.0\n500.0 100.0\n750 215");		
 	}
 
 	private JPanel iniImagingPerspectiveUI() {
